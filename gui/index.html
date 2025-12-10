@@ -1208,6 +1208,204 @@
 
         .config-status.success { color: var(--success); }
         .config-status.error { color: var(--error); }
+
+        /* Model Manager */
+        .model-manager {
+            margin-bottom: 40px;
+        }
+
+        .model-manager-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            background: var(--bg-2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: all var(--transition);
+        }
+
+        .model-manager-toggle:hover {
+            background: var(--bg-3);
+            border-color: var(--border-hover);
+        }
+
+        .model-manager-toggle.open .settings-toggle-arrow {
+            transform: rotate(180deg);
+        }
+
+        .model-manager-content {
+            display: none;
+            margin-top: 8px;
+        }
+
+        .model-manager-content.open {
+            display: block;
+        }
+
+        .model-panel {
+            background: var(--bg-2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            margin-bottom: 12px;
+        }
+
+        .model-panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .model-panel-title {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-2);
+        }
+
+        .model-panel-count {
+            font-family: 'Geist Mono', monospace;
+            font-size: 11px;
+            color: var(--text-3);
+            background: var(--bg-3);
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+
+        .model-search {
+            width: 100%;
+            padding: 8px 12px;
+            background: var(--bg-1);
+            border: none;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-1);
+            font-family: inherit;
+            font-size: 12px;
+            outline: none;
+        }
+
+        .model-search::placeholder {
+            color: var(--text-3);
+        }
+
+        .model-list-container {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .model-row {
+            display: flex;
+            align-items: center;
+            padding: 8px 14px;
+            border-bottom: 1px solid var(--border);
+            transition: background var(--transition);
+        }
+
+        .model-row:last-child {
+            border-bottom: none;
+        }
+
+        .model-row:hover {
+            background: var(--bg-3);
+        }
+
+        .model-row input[type="checkbox"] {
+            margin-right: 10px;
+            accent-color: var(--accent);
+        }
+
+        .model-row-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .model-row-name {
+            font-family: 'Geist Mono', monospace;
+            font-size: 12px;
+            color: var(--text-1);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .model-row-display {
+            font-size: 11px;
+            color: var(--text-3);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .model-row-action {
+            margin-left: 8px;
+        }
+
+        .model-row-action .btn {
+            padding: 4px 10px;
+            font-size: 11px;
+        }
+
+        .model-row.synced .model-row-name {
+            color: var(--success);
+        }
+
+        .model-row.synced .btn {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .model-panel-actions {
+            display: flex;
+            gap: 8px;
+            padding: 10px 14px;
+            border-top: 1px solid var(--border);
+        }
+
+        .model-panel-actions .btn {
+            padding: 6px 12px;
+            font-size: 11px;
+        }
+
+        .btn-success {
+            background: var(--success);
+            border-color: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover:not(:disabled) {
+            background: #3bc975;
+            border-color: #3bc975;
+        }
+
+        .model-empty {
+            padding: 20px;
+            text-align: center;
+            color: var(--text-3);
+            font-size: 12px;
+        }
+
+        /* Confirm Modal */
+        .confirm-modal .modal {
+            max-width: 360px;
+        }
+
+        .confirm-modal .modal-body {
+            text-align: center;
+            padding: 24px 20px;
+        }
+
+        .confirm-modal .modal-body p {
+            color: var(--text-2);
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+
+        .confirm-modal .modal-body .warning {
+            color: var(--error);
+            font-size: 12px;
+        }
     </style>
 </head>
 <body>
@@ -1352,6 +1550,49 @@
             </div>
         </section>
 
+        <section class="model-manager animate-in delay-4" id="modelManagerSection" style="display: none;">
+            <div class="model-manager-toggle" onclick="toggleModelManager()">
+                <div class="settings-toggle-left">
+                    <span class="settings-toggle-icon">🔧</span>
+                    <span class="settings-toggle-text">Factory Model Manager</span>
+                </div>
+                <span class="settings-toggle-arrow">▼</span>
+            </div>
+            <div class="model-manager-content" id="modelManagerContent">
+                <!-- Available Models Panel -->
+                <div class="model-panel">
+                    <div class="model-panel-header">
+                        <span class="model-panel-title">Available from CLIProxyAPI</span>
+                        <span class="model-panel-count" id="availableCount">0</span>
+                    </div>
+                    <input type="text" class="model-search" id="availableSearch" placeholder="Filter available models..." oninput="filterAvailableModels()">
+                    <div class="model-list-container" id="availableModelsList">
+                        <div class="model-empty">Start server to load models</div>
+                    </div>
+                    <div class="model-panel-actions">
+                        <button class="btn btn-success" onclick="addSelectedModels()" id="btnAddSelected" disabled>+ Add Selected (0)</button>
+                        <button class="btn btn-success" onclick="addAllMissingModels()" id="btnAddAllMissing" disabled>+ Add All Missing</button>
+                    </div>
+                </div>
+
+                <!-- Factory Config Panel -->
+                <div class="model-panel">
+                    <div class="model-panel-header">
+                        <span class="model-panel-title">Factory Config (~/.factory/config.json)</span>
+                        <span class="model-panel-count" id="factoryCount">0</span>
+                    </div>
+                    <input type="text" class="model-search" id="factorySearch" placeholder="Filter config models..." oninput="filterFactoryModels()">
+                    <div class="model-list-container" id="factoryModelsList">
+                        <div class="model-empty">No models in config</div>
+                    </div>
+                    <div class="model-panel-actions">
+                        <button class="btn btn-danger" onclick="removeSelectedModels()" id="btnRemoveSelected" disabled>Remove Selected (0)</button>
+                        <button class="btn btn-danger" onclick="confirmClearAll()">Clear All</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <section class="settings-section animate-in delay-4">
             <div class="settings-toggle" onclick="toggleSettings()">
                 <div class="settings-toggle-left">
@@ -1408,11 +1649,11 @@
             </div>
             <div class="modal-body">
                 <div class="update-version">
-                    <span class="current" id="updateCurrentVersion">v1.1.0</span>
+                    <span class="current" id="updateCurrentVersion">unknown</span>
                     <span class="arrow">→</span>
-                    <span class="new" id="updateNewVersion">v1.2.0</span>
+                    <span class="new" id="updateNewVersion">latest</span>
                 </div>
-                <div class="release-notes" id="updateReleaseNotes">Loading release notes...</div>
+                <div class="release-notes" id="updateReleaseNotes">Loading...</div>
             </div>
             <div class="modal-footer">
                 <button class="btn" onclick="closeUpdateModal()">Later</button>
@@ -1424,6 +1665,23 @@
     <div class="toast" id="toast">
         <span class="toast-icon">ℹ</span>
         <span class="toast-msg"></span>
+    </div>
+
+    <div class="modal-overlay confirm-modal" id="confirmModal">
+        <div class="modal">
+            <div class="modal-header">
+                <span class="modal-title">Confirm Action</span>
+                <button class="modal-close" onclick="closeConfirmModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="confirmMessage">Are you sure?</p>
+                <p class="warning" id="confirmWarning"></p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="closeConfirmModal()">Cancel</button>
+                <button class="btn btn-danger" id="btnConfirm" onclick="executeConfirmedAction()">Confirm</button>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -1655,6 +1913,7 @@
         async function loadModels() {
             const section = document.getElementById('modelsSection');
             const list = document.getElementById('modelsList');
+            const managerSection = document.getElementById('modelManagerSection');
             
             try {
                 const res = await fetch('/api/models');
@@ -1662,6 +1921,7 @@
                     const data = await res.json();
                     if (data.success && data.models && data.models.length > 0) {
                         section.style.display = 'block';
+                        managerSection.style.display = 'block';
                         list.innerHTML = data.models.map(m => 
                             `<span class="model-item">${m}</span>`
                         ).join('');
@@ -1815,12 +2075,12 @@
                 const res = await fetch('/api/update/check');
                 if (res.ok) {
                     const data = await res.json();
-                    if (data.success && data.hasUpdate) {
+                    if (data.hasUpdate) {
                         updateInfo = data;
                         const badge = document.getElementById('versionBadge');
                         badge.classList.add('update-available');
-                        badge.title = `Update available: ${data.latestVersion}`;
-                        log(`Update available: ${data.latestVersion}`, 'info');
+                        badge.title = `Update available: ${data.latestCommit}`;
+                        log(`Update available: ${data.latestCommit} - ${data.latestCommitMessage}`, 'info');
                     }
                     return data;
                 }
@@ -1842,13 +2102,18 @@
             const data = await checkForUpdate();
             
             if (data && data.hasUpdate) {
-                currentVersionEl.textContent = data.currentVersion || 'v1.1.0';
-                newVersionEl.textContent = data.latestVersion;
-                notesEl.textContent = data.releaseNotes || 'No release notes available.';
+                currentVersionEl.textContent = data.currentCommit || 'unknown';
+                newVersionEl.textContent = data.latestCommit;
+                notesEl.textContent = data.latestCommitMessage || 'New updates available from main branch';
                 document.getElementById('btnApplyUpdate').disabled = false;
+            } else if (data && data.error) {
+                currentVersionEl.textContent = data.currentCommit || 'unknown';
+                newVersionEl.textContent = '---';
+                notesEl.textContent = `Error: ${data.error}`;
+                document.getElementById('btnApplyUpdate').disabled = true;
             } else {
-                currentVersionEl.textContent = 'v1.1.0';
-                newVersionEl.textContent = 'v1.1.0';
+                currentVersionEl.textContent = data?.currentCommit || 'unknown';
+                newVersionEl.textContent = data?.latestCommit || 'latest';
                 notesEl.textContent = 'You are running the latest version!';
                 document.getElementById('btnApplyUpdate').disabled = true;
             }
@@ -1871,7 +2136,7 @@
                 const data = await res.json();
                 
                 if (data.success) {
-                    log('Update applied successfully!', 'success');
+                    log(`Update applied: ${data.newCommit} - ${data.commitMessage}`, 'success');
                     showToast('Update applied! Please restart the GUI.');
                     closeUpdateModal();
                     document.getElementById('versionBadge').classList.remove('update-available');
@@ -1887,6 +2152,330 @@
             btn.textContent = 'Update Now';
         }
 
+        // ============================================
+        // Model Manager Functions
+        // ============================================
+        
+        let availableModels = [];
+        let factoryModels = [];
+        let selectedAvailable = new Set();
+        let selectedFactory = new Set();
+        let pendingConfirmAction = null;
+
+        function generateDisplayName(modelId) {
+            const prefixMap = {
+                'gemini-claude': 'Antigravity',
+                'kiro-claude': 'Kiro',
+                'kiro-': 'Kiro'
+            };
+            
+            let provider = '';
+            let name = modelId;
+            
+            for (const [prefix, prov] of Object.entries(prefixMap)) {
+                if (modelId.startsWith(prefix)) {
+                    provider = prov;
+                    name = modelId.replace(prefix, '').replace(/^-/, '');
+                    break;
+                }
+            }
+            
+            const formatted = name
+                .split(/[-_]/)
+                .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                .join(' ')
+                .replace(/(\d+)\.(\d+)/g, '$1.$2')
+                .replace(/(\d+) (\d+)/g, '$1.$2');
+            
+            return provider ? `${formatted} [${provider}]` : formatted;
+        }
+
+        function toggleModelManager() {
+            const toggle = document.querySelector('.model-manager-toggle');
+            const content = document.getElementById('modelManagerContent');
+            toggle.classList.toggle('open');
+            content.classList.toggle('open');
+            
+            if (content.classList.contains('open')) {
+                loadModelManager();
+            }
+        }
+
+        async function loadModelManager() {
+            await Promise.all([loadAvailableForManager(), loadFactoryConfig()]);
+            renderAvailableModels();
+            renderFactoryModels();
+        }
+
+        async function loadAvailableForManager() {
+            try {
+                const res = await fetch('/api/models');
+                if (res.ok) {
+                    const data = await res.json();
+                    availableModels = data.models || [];
+                }
+            } catch (e) {
+                console.error('Failed to load available models:', e);
+                availableModels = [];
+            }
+        }
+
+        async function loadFactoryConfig() {
+            try {
+                const res = await fetch('/api/factory-config');
+                if (res.ok) {
+                    const data = await res.json();
+                    factoryModels = data.models || [];
+                }
+            } catch (e) {
+                console.error('Failed to load factory config:', e);
+                factoryModels = [];
+            }
+        }
+
+        function renderAvailableModels() {
+            const container = document.getElementById('availableModelsList');
+            const countEl = document.getElementById('availableCount');
+            const filter = document.getElementById('availableSearch').value.toLowerCase();
+            const factoryModelIds = new Set(factoryModels.map(m => m.model));
+            
+            const filtered = availableModels.filter(m => m.toLowerCase().includes(filter));
+            countEl.textContent = filtered.length;
+            
+            if (filtered.length === 0) {
+                container.innerHTML = '<div class="model-empty">No models found</div>';
+                return;
+            }
+            
+            let missingCount = 0;
+            container.innerHTML = filtered.map(modelId => {
+                const isSynced = factoryModelIds.has(modelId);
+                const isSelected = selectedAvailable.has(modelId);
+                if (!isSynced) missingCount++;
+                
+                return `
+                    <div class="model-row ${isSynced ? 'synced' : ''}" data-model="${modelId}">
+                        <input type="checkbox" ${isSelected ? 'checked' : ''} ${isSynced ? 'disabled' : ''} onchange="toggleAvailableSelection('${modelId}')">
+                        <div class="model-row-info">
+                            <div class="model-row-name">${modelId}</div>
+                            <div class="model-row-display">${isSynced ? '✓ Already in config' : generateDisplayName(modelId)}</div>
+                        </div>
+                        <div class="model-row-action">
+                            <button class="btn btn-success" onclick="addSingleModel('${modelId}')" ${isSynced ? 'disabled' : ''}>
+                                ${isSynced ? '✓' : '+ Add'}
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            updateAvailableButtons(missingCount);
+        }
+
+        function renderFactoryModels() {
+            const container = document.getElementById('factoryModelsList');
+            const countEl = document.getElementById('factoryCount');
+            const filter = document.getElementById('factorySearch').value.toLowerCase();
+            
+            const filtered = factoryModels.filter(m => 
+                m.model.toLowerCase().includes(filter) || 
+                (m.display_name && m.display_name.toLowerCase().includes(filter))
+            );
+            countEl.textContent = filtered.length;
+            
+            if (filtered.length === 0) {
+                container.innerHTML = '<div class="model-empty">No models in config</div>';
+                updateFactoryButtons();
+                return;
+            }
+            
+            container.innerHTML = filtered.map(m => {
+                const isSelected = selectedFactory.has(m.model);
+                return `
+                    <div class="model-row" data-model="${m.model}">
+                        <input type="checkbox" ${isSelected ? 'checked' : ''} onchange="toggleFactorySelection('${m.model}')">
+                        <div class="model-row-info">
+                            <div class="model-row-name">${m.model}</div>
+                            <div class="model-row-display">${m.display_name || m.model}</div>
+                        </div>
+                        <div class="model-row-action">
+                            <button class="btn btn-danger" onclick="removeSingleModel('${m.model}')">Remove</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            updateFactoryButtons();
+        }
+
+        function toggleAvailableSelection(modelId) {
+            if (selectedAvailable.has(modelId)) {
+                selectedAvailable.delete(modelId);
+            } else {
+                selectedAvailable.add(modelId);
+            }
+            updateAvailableButtons();
+        }
+
+        function toggleFactorySelection(modelId) {
+            if (selectedFactory.has(modelId)) {
+                selectedFactory.delete(modelId);
+            } else {
+                selectedFactory.add(modelId);
+            }
+            updateFactoryButtons();
+        }
+
+        function updateAvailableButtons(missingCount) {
+            const btn = document.getElementById('btnAddSelected');
+            const btnAll = document.getElementById('btnAddAllMissing');
+            const count = selectedAvailable.size;
+            
+            btn.textContent = `+ Add Selected (${count})`;
+            btn.disabled = count === 0;
+            
+            if (missingCount !== undefined) {
+                btnAll.textContent = `+ Add All Missing (${missingCount})`;
+                btnAll.disabled = missingCount === 0;
+            }
+        }
+
+        function updateFactoryButtons() {
+            const btn = document.getElementById('btnRemoveSelected');
+            const count = selectedFactory.size;
+            btn.textContent = `Remove Selected (${count})`;
+            btn.disabled = count === 0;
+        }
+
+        function filterAvailableModels() {
+            renderAvailableModels();
+        }
+
+        function filterFactoryModels() {
+            renderFactoryModels();
+        }
+
+        async function addSingleModel(modelId) {
+            const displayName = generateDisplayName(modelId);
+            await addModelsToFactory([modelId], { [modelId]: displayName });
+        }
+
+        async function addSelectedModels() {
+            if (selectedAvailable.size === 0) return;
+            
+            const displayNames = {};
+            selectedAvailable.forEach(modelId => {
+                displayNames[modelId] = generateDisplayName(modelId);
+            });
+            
+            await addModelsToFactory([...selectedAvailable], displayNames);
+            selectedAvailable.clear();
+        }
+
+        async function addAllMissingModels() {
+            const factoryModelIds = new Set(factoryModels.map(m => m.model));
+            const missing = availableModels.filter(m => !factoryModelIds.has(m));
+            
+            if (missing.length === 0) return;
+            
+            const displayNames = {};
+            missing.forEach(modelId => {
+                displayNames[modelId] = generateDisplayName(modelId);
+            });
+            
+            await addModelsToFactory(missing, displayNames);
+        }
+
+        async function addModelsToFactory(models, displayNames) {
+            try {
+                const res = await fetch('/api/factory-config/add', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ models, displayNames })
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    const count = data.added?.length || 0;
+                    log(`Added ${count} model(s) to Factory config`, 'success');
+                    showToast(`Added ${count} model(s) to config`);
+                    await loadModelManager();
+                } else {
+                    log(`Failed to add models: ${data.error}`, 'error');
+                    showToast(data.error);
+                }
+            } catch (e) {
+                log(`Error: ${e.message}`, 'error');
+            }
+        }
+
+        async function removeSingleModel(modelId) {
+            await removeModelsFromFactory([modelId]);
+        }
+
+        async function removeSelectedModels() {
+            if (selectedFactory.size === 0) return;
+            await removeModelsFromFactory([...selectedFactory]);
+            selectedFactory.clear();
+        }
+
+        async function removeModelsFromFactory(models, all = false) {
+            try {
+                const res = await fetch('/api/factory-config/remove', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(all ? { all: true } : { models })
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    const count = data.removed?.length || 0;
+                    log(`Removed ${count} model(s) from Factory config`, 'success');
+                    showToast(`Removed ${count} model(s) from config`);
+                    await loadModelManager();
+                } else {
+                    log(`Failed to remove models: ${data.error}`, 'error');
+                    showToast(data.error);
+                }
+            } catch (e) {
+                log(`Error: ${e.message}`, 'error');
+            }
+        }
+
+        function confirmClearAll() {
+            if (factoryModels.length === 0) {
+                showToast('No models to clear');
+                return;
+            }
+            
+            document.getElementById('confirmMessage').textContent = 
+                `Remove all ${factoryModels.length} models from Factory config?`;
+            document.getElementById('confirmWarning').textContent = 
+                'This action cannot be undone.';
+            pendingConfirmAction = () => removeModelsFromFactory([], true);
+            document.getElementById('confirmModal').classList.add('show');
+        }
+
+        function closeConfirmModal() {
+            document.getElementById('confirmModal').classList.remove('show');
+            pendingConfirmAction = null;
+        }
+
+        function executeConfirmedAction() {
+            if (pendingConfirmAction) {
+                pendingConfirmAction();
+            }
+            closeConfirmModal();
+        }
+
+        // Show model manager section when server is running
+        async function updateModelManagerVisibility(running) {
+            const section = document.getElementById('modelManagerSection');
+            if (running) {
+                section.style.display = 'block';
+            }
+        }
+
         // Keyboard shortcuts
         document.addEventListener('keydown', (e) => {
             if (e.key === 'r' || e.key === 'R') {
@@ -1894,6 +2483,7 @@
             }
             if (e.key === 'Escape') {
                 closeUpdateModal();
+                closeConfirmModal();
             }
         });
 
@@ -1912,9 +2502,10 @@
                 await startServer();
             }
             
-            // Load stats if server is running
+            // Load stats and show model manager if server is running
             if (running) {
                 await loadStats();
+                updateModelManagerVisibility(true);
             }
             
             // Check for updates on load

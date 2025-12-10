@@ -326,14 +326,20 @@ $UPSTREAM_REPO = "router-for-me/CLIProxyAPIPlus"
 function Get-LocalVersion {
     if (Test-Path $VERSION_FILE) {
         try {
-            return Get-Content $VERSION_FILE -Raw | ConvertFrom-Json
+            $version = Get-Content $VERSION_FILE -Raw | ConvertFrom-Json
+            # Ensure commitSha field exists (for existing users)
+            if (-not $version.commitSha) {
+                $version | Add-Member -NotePropertyName "commitSha" -NotePropertyValue "unknown" -Force
+            }
+            return $version
         } catch { }
     }
     
     # Create default version file
     $defaultVersion = @{
         scripts = $SCRIPT_VERSION
-        binary = "unknown"
+        commitSha = "unknown"
+        commitDate = $null
         lastCheck = $null
     }
     $defaultVersion | ConvertTo-Json | Out-File $VERSION_FILE -Encoding UTF8
@@ -345,38 +351,33 @@ function Get-UpdateInfo {
     
     $result = @{
         currentVersion = $local.scripts
-        latestVersion = $local.scripts
+        currentCommit = $local.commitSha
+        latestCommit = $null
+        latestCommitDate = $null
+        latestCommitMessage = ""
         hasUpdate = $false
-        releaseNotes = ""
-        releaseUrl = ""
-        downloadUrl = ""
+        downloadUrl = "https://github.com/$GITHUB_REPO/archive/refs/heads/main.zip"
+        repoUrl = "https://github.com/$GITHUB_REPO"
         error = $null
     }
     
     try {
-        # Check our repo for script updates
+        # Check latest commit on main branch
         $headers = @{ "User-Agent" = "CLIProxyAPI-Plus-Updater" }
-        $releaseUrl = "https://api.github.com/repos/$GITHUB_REPO/releases/latest"
+        $apiUrl = "https://api.github.com/repos/$GITHUB_REPO/commits/main"
         
-        $release = Invoke-RestMethod -Uri $releaseUrl -Headers $headers -TimeoutSec 10 -ErrorAction Stop
+        $commit = Invoke-RestMethod -Uri $apiUrl -Headers $headers -TimeoutSec 10 -ErrorAction Stop
         
-        $result.latestVersion = $release.tag_name -replace "^v", ""
-        $result.releaseNotes = $release.body
-        $result.releaseUrl = $release.html_url
+        $result.latestCommit = $commit.sha.Substring(0, 7)
+        $result.latestCommitDate = $commit.commit.author.date
+        # Get first line of commit message
+        $result.latestCommitMessage = ($commit.commit.message -split "`n")[0]
         
-        # Find download URL (zip asset)
-        $zipAsset = $release.assets | Where-Object { $_.name -like "*.zip" } | Select-Object -First 1
-        if ($zipAsset) {
-            $result.downloadUrl = $zipAsset.browser_download_url
-        }
-        
-        # Compare versions
-        try {
-            $currentVer = [version]($local.scripts -replace "[^0-9.]", "")
-            $latestVer = [version]($result.latestVersion -replace "[^0-9.]", "")
-            $result.hasUpdate = $latestVer -gt $currentVer
-        } catch {
-            $result.hasUpdate = $local.scripts -ne $result.latestVersion
+        # Has update if commit SHA is different (and not unknown)
+        if ($local.commitSha -eq "unknown") {
+            $result.hasUpdate = $true
+        } else {
+            $result.hasUpdate = ($local.commitSha -ne $result.latestCommit)
         }
         
         # Update last check time
@@ -391,13 +392,16 @@ function Get-UpdateInfo {
 }
 
 function Install-Update {
-    param([string]$DownloadUrl)
-    
-    if (-not $DownloadUrl) {
-        return @{ success = $false; error = "No download URL provided" }
-    }
+    # Use main branch archive URL directly
+    $downloadUrl = "https://github.com/$GITHUB_REPO/archive/refs/heads/main.zip"
     
     try {
+        # Get latest commit info first
+        $updateInfo = Get-UpdateInfo
+        if ($updateInfo.error) {
+            return @{ success = $false; error = "Failed to get update info: $($updateInfo.error)" }
+        }
+        
         # Stop server if running
         $proc = Get-ServerProcess
         $wasRunning = $null -ne $proc
@@ -415,14 +419,14 @@ function Install-Update {
         }
         New-Item -ItemType Directory -Path $tempDir -Force | Out-Null
         
-        Write-Log "Downloading update from $DownloadUrl"
-        Invoke-WebRequest -Uri $DownloadUrl -OutFile $zipFile -UseBasicParsing
+        Write-Log "Downloading update from $downloadUrl"
+        Invoke-WebRequest -Uri $downloadUrl -OutFile $zipFile -UseBasicParsing
         
         # Extract
         Write-Log "Extracting update..."
         Expand-Archive -Path $zipFile -DestinationPath $tempDir -Force
         
-        # Find extracted folder
+        # Find extracted folder (GitHub archives as repo-name-branch)
         $extractedFolder = Get-ChildItem -Path $tempDir -Directory | Select-Object -First 1
         if (-not $extractedFolder) {
             $extractedFolder = Get-Item $tempDir
@@ -441,10 +445,10 @@ function Install-Update {
             Copy-Item -Path "$guiSource\*" -Destination $guiDest -Force -Recurse
         }
         
-        # Update version file
+        # Update version file with new commit SHA
         $local = Get-LocalVersion
-        $updateInfo = Get-UpdateInfo
-        $local.scripts = $updateInfo.latestVersion
+        $local.commitSha = $updateInfo.latestCommit
+        $local.commitDate = $updateInfo.latestCommitDate
         $local | ConvertTo-Json | Out-File $VERSION_FILE -Encoding UTF8
         
         # Cleanup
@@ -458,9 +462,144 @@ function Install-Update {
         return @{ 
             success = $true
             message = "Update installed successfully"
-            newVersion = $updateInfo.latestVersion
+            newCommit = $updateInfo.latestCommit
+            commitMessage = $updateInfo.latestCommitMessage
             needsRestart = $true
         }
+    } catch {
+        return @{ success = $false; error = $_.Exception.Message }
+    }
+}
+
+# ============================================
+# Factory Config Functions
+# ============================================
+
+$FACTORY_CONFIG_PATH = "$env:USERPROFILE\.factory\config.json"
+
+function Get-FactoryConfig {
+    if (-not (Test-Path $FACTORY_CONFIG_PATH)) {
+        return @{ success = $true; config = @{ custom_models = @() }; models = @() }
+    }
+    
+    try {
+        $content = Get-Content $FACTORY_CONFIG_PATH -Raw -Encoding UTF8
+        $config = $content | ConvertFrom-Json
+        $models = @()
+        if ($config.custom_models) {
+            $models = $config.custom_models | ForEach-Object {
+                @{
+                    model = $_.model
+                    display_name = $_.model_display_name
+                    base_url = $_.base_url
+                }
+            }
+        }
+        return @{ success = $true; config = $config; models = $models }
+    } catch {
+        return @{ success = $false; error = $_.Exception.Message; models = @() }
+    }
+}
+
+function Add-FactoryModels {
+    param([array]$Models, [hashtable]$DisplayNames)
+    
+    try {
+        # Ensure .factory directory exists
+        $factoryDir = Split-Path $FACTORY_CONFIG_PATH -Parent
+        if (-not (Test-Path $factoryDir)) {
+            New-Item -ItemType Directory -Path $factoryDir -Force | Out-Null
+        }
+        
+        # Load existing config or create new
+        $config = @{ custom_models = @() }
+        if (Test-Path $FACTORY_CONFIG_PATH) {
+            $backup = "$FACTORY_CONFIG_PATH.bak"
+            Copy-Item -Path $FACTORY_CONFIG_PATH -Destination $backup -Force
+            $content = Get-Content $FACTORY_CONFIG_PATH -Raw -Encoding UTF8
+            $config = $content | ConvertFrom-Json
+            if (-not $config.custom_models) {
+                $config | Add-Member -NotePropertyName "custom_models" -NotePropertyValue @() -Force
+            }
+        }
+        
+        # Get existing model IDs
+        $existingModels = @()
+        if ($config.custom_models) {
+            $existingModels = $config.custom_models | ForEach-Object { $_.model }
+        }
+        
+        # Add new models
+        $added = @()
+        foreach ($modelId in $Models) {
+            if ($modelId -notin $existingModels) {
+                $displayName = if ($DisplayNames -and $DisplayNames[$modelId]) { 
+                    $DisplayNames[$modelId] 
+                } else { 
+                    $modelId 
+                }
+                
+                $newEntry = @{
+                    api_key = "sk-dummy"
+                    provider = "openai"
+                    model = $modelId
+                    base_url = "http://localhost:8317/v1"
+                    model_display_name = $displayName
+                }
+                
+                $config.custom_models += $newEntry
+                $added += $modelId
+            }
+        }
+        
+        # Save config
+        $config | ConvertTo-Json -Depth 10 | Out-File -FilePath $FACTORY_CONFIG_PATH -Encoding UTF8 -Force
+        
+        return @{ success = $true; added = $added; total = $config.custom_models.Count }
+    } catch {
+        return @{ success = $false; error = $_.Exception.Message }
+    }
+}
+
+function Remove-FactoryModels {
+    param([array]$Models, [switch]$All)
+    
+    if (-not (Test-Path $FACTORY_CONFIG_PATH)) {
+        return @{ success = $false; error = "Config file not found" }
+    }
+    
+    try {
+        # Backup
+        $backup = "$FACTORY_CONFIG_PATH.bak"
+        Copy-Item -Path $FACTORY_CONFIG_PATH -Destination $backup -Force
+        
+        $content = Get-Content $FACTORY_CONFIG_PATH -Raw -Encoding UTF8
+        $config = $content | ConvertFrom-Json
+        
+        if (-not $config.custom_models) {
+            return @{ success = $true; removed = @(); total = 0 }
+        }
+        
+        $removed = @()
+        if ($All) {
+            $removed = $config.custom_models | ForEach-Object { $_.model }
+            $config.custom_models = @()
+        } else {
+            $remaining = @()
+            foreach ($entry in $config.custom_models) {
+                if ($entry.model -in $Models) {
+                    $removed += $entry.model
+                } else {
+                    $remaining += $entry
+                }
+            }
+            $config.custom_models = $remaining
+        }
+        
+        # Save config
+        $config | ConvertTo-Json -Depth 10 | Out-File -FilePath $FACTORY_CONFIG_PATH -Encoding UTF8 -Force
+        
+        return @{ success = $true; removed = $removed; total = $config.custom_models.Count }
     } catch {
         return @{ success = $false; error = $_.Exception.Message }
     }
@@ -517,16 +656,62 @@ if (-not (Test-Path $GUI_PATH)) {
     exit 1
 }
 
-# Check if port is available
-$portInUse = Get-NetTCPConnection -LocalPort $Port -ErrorAction SilentlyContinue
-if ($portInUse) {
-    Write-Host "[-] Port $Port already in use" -ForegroundColor Red
+# Auto-cleanup orphaned GUI process and find available port
+$originalPort = $Port
+$maxRetries = 5
+$portFound = $false
+
+for ($i = 0; $i -lt $maxRetries; $i++) {
+    $testPort = $originalPort + $i
+    $existingConn = Get-NetTCPConnection -LocalPort $testPort -ErrorAction SilentlyContinue
+    
+    if ($existingConn) {
+        # Try to kill orphaned PowerShell GUI process
+        $proc = Get-Process -Id $existingConn.OwningProcess -ErrorAction SilentlyContinue
+        if ($proc -and ($proc.ProcessName -eq "pwsh" -or $proc.ProcessName -eq "powershell")) {
+            Write-Host "[!] Killing orphaned GUI process on port $testPort (PID: $($proc.Id))..." -ForegroundColor Yellow
+            $proc | Stop-Process -Force -ErrorAction SilentlyContinue
+            Start-Sleep -Milliseconds 500
+            
+            # Re-check if port is now free
+            $stillInUse = Get-NetTCPConnection -LocalPort $testPort -ErrorAction SilentlyContinue
+            if (-not $stillInUse) {
+                $Port = $testPort
+                $portFound = $true
+                break
+            }
+        }
+        # Port still in use by another process, try next port
+        if ($i -eq 0) {
+            Write-Host "[!] Port $testPort in use, trying alternatives..." -ForegroundColor Yellow
+        }
+    } else {
+        $Port = $testPort
+        $portFound = $true
+        break
+    }
+}
+
+if (-not $portFound) {
+    Write-Host "[-] No available port found (tried $originalPort-$($originalPort + $maxRetries - 1))" -ForegroundColor Red
     exit 1
+}
+
+if ($Port -ne $originalPort) {
+    Write-Host "[+] Using port $Port (default $originalPort was busy)" -ForegroundColor Cyan
 }
 
 # Create HTTP listener
 $listener = New-Object System.Net.HttpListener
 $listener.Prefixes.Add("http://localhost:$Port/")
+
+# Setup graceful shutdown handler
+$null = Register-EngineEvent -SourceIdentifier PowerShell.Exiting -Action {
+    if ($listener -and $listener.IsListening) {
+        $listener.Stop()
+        $listener.Close()
+    }
+} -ErrorAction SilentlyContinue
 
 try {
     $listener.Start()
@@ -680,6 +865,60 @@ try {
                     $version = Get-LocalVersion
                     $version | Add-Member -NotePropertyName "scriptVersion" -NotePropertyValue $SCRIPT_VERSION -Force
                     Send-JsonResponse -Context $context -Data $version
+                }
+                "^/api/factory-config$" {
+                    if ($method -eq "GET") {
+                        $result = Get-FactoryConfig
+                        Send-JsonResponse -Context $context -Data $result
+                    } else {
+                        Send-JsonResponse -Context $context -Data @{ error = "Method not allowed" } -StatusCode 405
+                    }
+                }
+                "^/api/factory-config/add$" {
+                    if ($method -eq "POST") {
+                        $reader = New-Object System.IO.StreamReader($request.InputStream)
+                        $body = $reader.ReadToEnd()
+                        $reader.Close()
+                        
+                        try {
+                            $data = $body | ConvertFrom-Json
+                            $models = @($data.models)
+                            $displayNames = @{}
+                            if ($data.displayNames) {
+                                $data.displayNames.PSObject.Properties | ForEach-Object {
+                                    $displayNames[$_.Name] = $_.Value
+                                }
+                            }
+                            $result = Add-FactoryModels -Models $models -DisplayNames $displayNames
+                            Send-JsonResponse -Context $context -Data $result
+                        } catch {
+                            Send-JsonResponse -Context $context -Data @{ success = $false; error = "Invalid request: $($_.Exception.Message)" } -StatusCode 400
+                        }
+                    } else {
+                        Send-JsonResponse -Context $context -Data @{ error = "Method not allowed" } -StatusCode 405
+                    }
+                }
+                "^/api/factory-config/remove$" {
+                    if ($method -eq "POST") {
+                        $reader = New-Object System.IO.StreamReader($request.InputStream)
+                        $body = $reader.ReadToEnd()
+                        $reader.Close()
+                        
+                        try {
+                            $data = $body | ConvertFrom-Json
+                            if ($data.all -eq $true) {
+                                $result = Remove-FactoryModels -All
+                            } else {
+                                $models = @($data.models)
+                                $result = Remove-FactoryModels -Models $models
+                            }
+                            Send-JsonResponse -Context $context -Data $result
+                        } catch {
+                            Send-JsonResponse -Context $context -Data @{ success = $false; error = "Invalid request: $($_.Exception.Message)" } -StatusCode 400
+                        }
+                    } else {
+                        Send-JsonResponse -Context $context -Data @{ error = "Method not allowed" } -StatusCode 405
+                    }
                 }
                 default {
                     Send-JsonResponse -Context $context -Data @{ error = "Not found" } -StatusCode 404
