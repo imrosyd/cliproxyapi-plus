@@ -157,6 +157,47 @@ function Start-OAuthLogin {
     }
 }
 
+function Get-AuthStatus {
+    # Check for auth token files to determine which providers are logged in
+    $authPatterns = @{
+        gemini = "gemini-*.json"
+        copilot = "github-copilot-*.json"
+        antigravity = "antigravity-*.json"
+        codex = "codex-*.json"
+        claude = "claude-*.json"
+        qwen = "qwen-*.json"
+        iflow = "iflow-*.json"
+        kiro = "kiro-*.json"
+    }
+    
+    $status = @{}
+    foreach ($provider in $authPatterns.Keys) {
+        $pattern = Join-Path $CONFIG_DIR $authPatterns[$provider]
+        $files = Get-ChildItem -Path $pattern -ErrorAction SilentlyContinue
+        $status[$provider] = ($null -ne $files -and $files.Count -gt 0)
+    }
+    
+    return $status
+}
+
+function Get-AvailableModels {
+    $proc = Get-ServerProcess
+    if (-not $proc) {
+        return @{ success = $false; error = "Server not running"; models = @() }
+    }
+    
+    try {
+        $response = Invoke-RestMethod -Uri "http://localhost:$API_PORT/v1/models" -Headers @{ "Authorization" = "Bearer sk-dummy" } -TimeoutSec 5
+        $models = @()
+        if ($response.data) {
+            $models = $response.data | ForEach-Object { $_.id }
+        }
+        return @{ success = $true; models = $models }
+    } catch {
+        return @{ success = $false; error = $_.Exception.Message; models = @() }
+    }
+}
+
 function Send-JsonResponse {
     param($Context, $Data, [int]$StatusCode = 200)
     
@@ -262,6 +303,14 @@ try {
                 "^/api/status$" {
                     $status = Get-ServerStatus
                     Send-JsonResponse -Context $context -Data $status
+                }
+                "^/api/auth-status$" {
+                    $authStatus = Get-AuthStatus
+                    Send-JsonResponse -Context $context -Data $authStatus
+                }
+                "^/api/models$" {
+                    $models = Get-AvailableModels
+                    Send-JsonResponse -Context $context -Data $models
                 }
                 "^/api/start$" {
                     if ($method -eq "POST") {

@@ -326,6 +326,41 @@
             color: var(--success);
         }
 
+        /* Models List */
+        .models-list {
+            background: var(--bg-2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 12px 16px;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        .models-hint {
+            font-size: 12px;
+            color: var(--text-3);
+            text-align: center;
+            padding: 8px;
+        }
+
+        .model-item {
+            font-family: 'Geist Mono', monospace;
+            font-size: 12px;
+            color: var(--text-2);
+            padding: 4px 8px;
+            margin: 2px 0;
+            background: var(--bg-3);
+            border-radius: var(--radius-sm);
+            display: inline-block;
+            margin-right: 6px;
+            margin-bottom: 6px;
+        }
+
+        .model-item:hover {
+            color: var(--text-1);
+            background: var(--bg-hover);
+        }
+
         /* Activity Log */
         .activity {
             background: var(--bg-1);
@@ -557,38 +592,45 @@
         <section class="animate-in delay-3">
             <div class="section-header">Providers</div>
             <div class="providers">
-                <div class="provider" onclick="loginProvider('gemini')">
+                <div class="provider" id="provider-gemini" onclick="loginProvider('gemini')">
                     <div class="provider-icon">◆</div>
                     <div class="provider-name">Gemini</div>
                 </div>
-                <div class="provider" onclick="loginProvider('copilot')">
+                <div class="provider" id="provider-copilot" onclick="loginProvider('copilot')">
                     <div class="provider-icon">◇</div>
                     <div class="provider-name">Copilot</div>
                 </div>
-                <div class="provider" onclick="loginProvider('antigravity')">
+                <div class="provider" id="provider-antigravity" onclick="loginProvider('antigravity')">
                     <div class="provider-icon">△</div>
                     <div class="provider-name">Antigravity</div>
                 </div>
-                <div class="provider" onclick="loginProvider('codex')">
+                <div class="provider" id="provider-codex" onclick="loginProvider('codex')">
                     <div class="provider-icon">□</div>
                     <div class="provider-name">Codex</div>
                 </div>
-                <div class="provider" onclick="loginProvider('claude')">
+                <div class="provider" id="provider-claude" onclick="loginProvider('claude')">
                     <div class="provider-icon">○</div>
                     <div class="provider-name">Claude</div>
                 </div>
-                <div class="provider" onclick="loginProvider('qwen')">
+                <div class="provider" id="provider-qwen" onclick="loginProvider('qwen')">
                     <div class="provider-icon">◎</div>
                     <div class="provider-name">Qwen</div>
                 </div>
-                <div class="provider" onclick="loginProvider('iflow')">
+                <div class="provider" id="provider-iflow" onclick="loginProvider('iflow')">
                     <div class="provider-icon">◈</div>
                     <div class="provider-name">iFlow</div>
                 </div>
-                <div class="provider" onclick="loginProvider('kiro')">
+                <div class="provider" id="provider-kiro" onclick="loginProvider('kiro')">
                     <div class="provider-icon">▽</div>
                     <div class="provider-name">Kiro</div>
                 </div>
+            </div>
+        </section>
+
+        <section class="animate-in delay-4" id="modelsSection" style="display: none;">
+            <div class="section-header">Available Models</div>
+            <div class="models-list" id="modelsList">
+                <div class="models-hint">Start server to see available models</div>
             </div>
         </section>
 
@@ -741,9 +783,61 @@
             return false;
         }
 
+        async function checkAuthStatus() {
+            try {
+                const res = await fetch('/api/auth-status');
+                if (res.ok) {
+                    const authStatus = await res.json();
+                    const providers = ['gemini', 'copilot', 'antigravity', 'codex', 'claude', 'qwen', 'iflow', 'kiro'];
+                    providers.forEach(provider => {
+                        const el = document.getElementById(`provider-${provider}`);
+                        if (el) {
+                            if (authStatus[provider]) {
+                                el.classList.add('connected');
+                            } else {
+                                el.classList.remove('connected');
+                            }
+                        }
+                    });
+                }
+            } catch (e) {
+                console.error('Failed to check auth status:', e);
+            }
+        }
+
+        async function loadModels() {
+            const section = document.getElementById('modelsSection');
+            const list = document.getElementById('modelsList');
+            
+            try {
+                const res = await fetch('/api/models');
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.success && data.models && data.models.length > 0) {
+                        section.style.display = 'block';
+                        list.innerHTML = data.models.map(m => 
+                            `<span class="model-item">${m}</span>`
+                        ).join('');
+                    } else {
+                        section.style.display = 'none';
+                    }
+                } else {
+                    section.style.display = 'none';
+                }
+            } catch (e) {
+                section.style.display = 'none';
+            }
+        }
+
         async function refreshStatus() {
             log('Checking status...', 'info');
             const running = await checkStatus();
+            await checkAuthStatus();
+            if (running) {
+                await loadModels();
+            } else {
+                document.getElementById('modelsSection').style.display = 'none';
+            }
             log(running ? 'Server is running' : 'Server is offline', running ? 'success' : 'warning');
         }
 
@@ -759,6 +853,7 @@
                     log(`Server started (PID: ${data.pid})`, 'success');
                     showToast('Server started successfully');
                     setTimeout(checkStatus, 500);
+                    setTimeout(loadModels, 1500);
                 } else {
                     log(`Failed: ${data.error}`, 'error');
                     showToast(data.error);
@@ -846,7 +941,9 @@
         document.addEventListener('DOMContentLoaded', () => {
             log('Control Center ready', 'success');
             checkStatus();
+            checkAuthStatus();
             setInterval(checkStatus, 5000);
+            setInterval(checkAuthStatus, 10000);
         });
     </script>
 </body>
