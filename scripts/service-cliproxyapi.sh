@@ -110,13 +110,27 @@ install_service() {
         write_warning "WSL detected - using user service (no systemd)"
         create_user_service
         
+        # Create logs directory
+        mkdir -p "$CONFIG_DIR/logs"
+        
         # For WSL, we use a startup script instead
         STARTUP_SCRIPT="$BIN_DIR/cliproxyapi-startup.sh"
         cat > "$STARTUP_SCRIPT" << EOF
 #!/bin/bash
 # CLIProxyAPI-Plus Startup Script for WSL
-nohup $BINARY --config $CONFIG > $CONFIG_DIR/logs/service.log 2>&1 &
-echo \$! > $CONFIG_DIR/cliproxyapi.pid
+# Starts both API server and GUI server in background
+
+# Start API server
+if ! pgrep -f "cliproxyapi-plus" > /dev/null 2>&1; then
+    nohup $BINARY --config $CONFIG > $CONFIG_DIR/logs/api-server.log 2>&1 &
+    echo \$! > $CONFIG_DIR/cliproxyapi.pid
+fi
+
+# Start GUI server
+if ! pgrep -f "gui-server.py" > /dev/null 2>&1; then
+    nohup python3 $BIN_DIR/gui-server.py --no-browser > $CONFIG_DIR/logs/gui-server.log 2>&1 &
+    echo \$! > $CONFIG_DIR/gui-server.pid
+fi
 EOF
         chmod +x "$STARTUP_SCRIPT"
         
@@ -124,13 +138,11 @@ EOF
         if ! grep -q "cliproxyapi-startup" "$HOME/.bashrc" 2>/dev/null; then
             echo "" >> "$HOME/.bashrc"
             echo "# CLIProxyAPI-Plus auto-start" >> "$HOME/.bashrc"
-            echo "if ! pgrep -f 'cliproxyapi-plus' > /dev/null 2>&1; then" >> "$HOME/.bashrc"
-            echo "    $STARTUP_SCRIPT > /dev/null 2>&1" >> "$HOME/.bashrc"
-            echo "fi" >> "$HOME/.bashrc"
+            echo "$STARTUP_SCRIPT > /dev/null 2>&1" >> "$HOME/.bashrc"
         fi
         
         write_success "WSL startup configured"
-        write_success "Service will auto-start when you open terminal"
+        write_success "Both API and GUI will auto-start when you open terminal"
         
         # Start now
         "$STARTUP_SCRIPT"
@@ -138,10 +150,16 @@ EOF
         
         if pgrep -f "cliproxyapi-plus" > /dev/null 2>&1; then
             PID=$(pgrep -f "cliproxyapi-plus" | head -1)
-            write_success "Service started (PID: $PID)"
+            write_success "API Server started (PID: $PID)"
         else
-            write_error "Failed to start service"
-            exit 1
+            write_error "Failed to start API server"
+        fi
+        
+        if pgrep -f "gui-server.py" > /dev/null 2>&1; then
+            GUI_PID=$(pgrep -f "gui-server.py" | head -1)
+            write_success "GUI Server started (PID: $GUI_PID) - http://localhost:8318"
+        else
+            write_warning "GUI Server not started (may need Python3)"
         fi
         
     else
@@ -255,9 +273,13 @@ stop_service() {
     if is_wsl; then
         if pgrep -f "cliproxyapi-plus" > /dev/null 2>&1; then
             pkill -f "cliproxyapi-plus"
-            write_success "Service stopped"
+            write_success "API Server stopped"
         else
-            write_warning "Service not running"
+            write_warning "API Server not running"
+        fi
+        if pgrep -f "gui-server.py" > /dev/null 2>&1; then
+            pkill -f "gui-server.py"
+            write_success "GUI Server stopped"
         fi
     else
         sudo systemctl stop "$SERVICE_NAME"
@@ -279,15 +301,30 @@ show_status() {
     echo ""
     
     if is_wsl; then
+        # API Server status
+        echo "API Server:"
         if pgrep -f "cliproxyapi-plus" > /dev/null 2>&1; then
             PID=$(pgrep -f "cliproxyapi-plus" | head -1)
             MEM=$(ps -o rss= -p "$PID" 2>/dev/null | awk '{printf "%.1f MB", $1/1024}')
-            echo -e "Status: ${GREEN}RUNNING${NC}"
-            echo "PID: $PID"
-            echo "Memory: $MEM"
-            echo "Endpoint: http://localhost:8317/v1"
+            echo -e "  Status: ${GREEN}RUNNING${NC}"
+            echo "  PID: $PID"
+            echo "  Memory: $MEM"
+            echo "  Endpoint: http://localhost:8317/v1"
         else
-            echo -e "Status: ${RED}STOPPED${NC}"
+            echo -e "  Status: ${RED}STOPPED${NC}"
+        fi
+        
+        echo ""
+        echo "GUI Server:"
+        if pgrep -f "gui-server.py" > /dev/null 2>&1; then
+            GUI_PID=$(pgrep -f "gui-server.py" | head -1)
+            GUI_MEM=$(ps -o rss= -p "$GUI_PID" 2>/dev/null | awk '{printf "%.1f MB", $1/1024}')
+            echo -e "  Status: ${GREEN}RUNNING${NC}"
+            echo "  PID: $GUI_PID"
+            echo "  Memory: $GUI_MEM"
+            echo "  URL: http://localhost:8318"
+        else
+            echo -e "  Status: ${RED}STOPPED${NC}"
         fi
     else
         sudo systemctl status "$SERVICE_NAME" --no-pager
