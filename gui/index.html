@@ -1,12 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CLIProxyAPI+ Control Center</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
     <style>
         :root {
             --bg-0: #09090B;
@@ -57,7 +60,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: 
+            background:
                 radial-gradient(ellipse 80% 50% at 50% -20%, rgba(124, 92, 255, 0.08), transparent),
                 radial-gradient(ellipse 60% 40% at 100% 100%, rgba(124, 92, 255, 0.04), transparent);
             pointer-events: none;
@@ -139,8 +142,13 @@
             letter-spacing: 0.5px;
         }
 
-        .stat-card.success .stat-value { color: var(--success); }
-        .stat-card.warning .stat-value { color: var(--warning); }
+        .stat-card.success .stat-value {
+            color: var(--success);
+        }
+
+        .stat-card.warning .stat-value {
+            color: var(--warning);
+        }
 
         /* Linear-style Update Button */
         .update-btn {
@@ -171,26 +179,29 @@
 
         /* Update Available State */
         .update-btn.update-available {
-            box-shadow: 
+            box-shadow:
                 0 1px 2px rgba(0, 0, 0, 0.1),
                 0 0 0 2px rgba(139, 92, 246, 0.2);
             animation: pulse-ring 2s ease-in-out infinite;
         }
 
         .update-btn.update-available:hover {
-            box-shadow: 
+            box-shadow:
                 0 2px 4px rgba(139, 92, 246, 0.3),
                 0 0 0 2px rgba(139, 92, 246, 0.3);
         }
 
         @keyframes pulse-ring {
-            0%, 100% {
-                box-shadow: 
+
+            0%,
+            100% {
+                box-shadow:
                     0 1px 2px rgba(0, 0, 0, 0.1),
                     0 0 0 2px rgba(139, 92, 246, 0.2);
             }
+
             50% {
-                box-shadow: 
+                box-shadow:
                     0 1px 2px rgba(0, 0, 0, 0.1),
                     0 0 0 2px rgba(139, 92, 246, 0.4);
             }
@@ -320,7 +331,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: 
+            background:
                 radial-gradient(ellipse 80% 50% at 50% -20%, rgba(124, 92, 255, 0.08), transparent),
                 radial-gradient(ellipse 60% 40% at 100% 100%, rgba(124, 92, 255, 0.04), transparent);
             pointer-events: none;
@@ -402,8 +413,13 @@
             letter-spacing: 0.5px;
         }
 
-        .stat-card.success .stat-value { color: var(--success); }
-        .stat-card.warning .stat-value { color: var(--warning); }
+        .stat-card.success .stat-value {
+            color: var(--success);
+        }
+
+        .stat-card.warning .stat-value {
+            color: var(--warning);
+        }
 
         /* Linear-style Update Button */
         .update-btn {
@@ -434,26 +450,29 @@
 
         /* Update Available State */
         .update-btn.update-available {
-            box-shadow: 
+            box-shadow:
                 0 1px 2px rgba(0, 0, 0, 0.1),
                 0 0 0 2px rgba(139, 92, 246, 0.2);
             animation: pulse-ring 2s ease-in-out infinite;
         }
 
         .update-btn.update-available:hover {
-            box-shadow: 
+            box-shadow:
                 0 2px 4px rgba(139, 92, 246, 0.3),
                 0 0 0 2px rgba(139, 92, 246, 0.3);
         }
 
         @keyframes pulse-ring {
-            0%, 100% {
-                box-shadow: 
+
+            0%,
+            100% {
+                box-shadow:
                     0 1px 2px rgba(0, 0, 0, 0.1),
                     0 0 0 2px rgba(139, 92, 246, 0.2);
             }
+
             50% {
-                box-shadow: 
+                box-shadow:
                     0 1px 2px rgba(0, 0, 0, 0.1),
                     0 0 0 2px rgba(139, 92, 246, 0.4);
             }
@@ -610,8 +629,15 @@
         }
 
         @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.4; }
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.4;
+            }
         }
 
         .status-label {
@@ -619,9 +645,17 @@
             font-weight: 500;
         }
 
-        .status-label.running { color: var(--success); }
-        .status-label.stopped { color: var(--text-3); }
-        .status-label.starting { color: var(--warning); }
+        .status-label.running {
+            color: var(--success);
+        }
+
+        .status-label.stopped {
+            color: var(--text-3);
+        }
+
+        .status-label.starting {
+            color: var(--warning);
+        }
 
         .status-desc {
             color: var(--text-2);
@@ -847,6 +881,75 @@
             color: var(--success);
         }
 
+        /* Provider toggle styles */
+        .provider-toggle-container {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            z-index: 10;
+        }
+
+        .provider-toggle {
+            width: 32px;
+            height: 18px;
+            background: var(--bg-3);
+            border-radius: 9px;
+            cursor: pointer;
+            position: relative;
+            transition: all var(--transition);
+            border: 1px solid var(--border);
+        }
+
+        .provider-toggle::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 12px;
+            height: 12px;
+            background: var(--text-3);
+            border-radius: 50%;
+            transition: all var(--transition);
+        }
+
+        .provider-toggle.enabled {
+            background: var(--success);
+            border-color: var(--success);
+        }
+
+        .provider-toggle.enabled::after {
+            left: 16px;
+            background: white;
+        }
+
+        .provider.connected {
+            position: relative;
+        }
+
+        .provider.disabled {
+            border-color: var(--border);
+            background: var(--bg-2);
+            opacity: 0.6;
+        }
+
+        .provider.disabled .provider-icon svg {
+            fill: var(--text-3);
+        }
+
+        .provider.disabled .provider-name {
+            color: var(--text-3);
+        }
+
+        .provider.disabled::after {
+            content: 'OFF';
+            position: absolute;
+            bottom: 4px;
+            font-size: 8px;
+            font-weight: 600;
+            color: var(--text-3);
+            letter-spacing: 0.5px;
+        }
+
 
 
         /* Models List */
@@ -949,10 +1052,21 @@
             flex-shrink: 0;
         }
 
-        .log-msg.success { color: var(--success); }
-        .log-msg.warning { color: var(--warning); }
-        .log-msg.error { color: var(--error); }
-        .log-msg.info { color: var(--accent); }
+        .log-msg.success {
+            color: var(--success);
+        }
+
+        .log-msg.warning {
+            color: var(--warning);
+        }
+
+        .log-msg.error {
+            color: var(--error);
+        }
+
+        .log-msg.info {
+            color: var(--accent);
+        }
 
         /* Footer */
         footer {
@@ -1043,26 +1157,57 @@
 
         /* Responsive */
         @media (max-width: 520px) {
-            .metrics { grid-template-columns: 1fr; }
-            .providers { grid-template-columns: repeat(2, 1fr); }
-            .controls { flex-direction: column; }
-            footer { flex-direction: column; gap: 12px; text-align: center; }
+            .metrics {
+                grid-template-columns: 1fr;
+            }
+
+            .providers {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .controls {
+                flex-direction: column;
+            }
+
+            footer {
+                flex-direction: column;
+                gap: 12px;
+                text-align: center;
+            }
         }
 
         /* Fade-in animation */
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(8px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .animate-in {
             animation: fadeIn 400ms ease forwards;
         }
 
-        .delay-1 { animation-delay: 50ms; }
-        .delay-2 { animation-delay: 100ms; }
-        .delay-3 { animation-delay: 150ms; }
-        .delay-4 { animation-delay: 200ms; }
+        .delay-1 {
+            animation-delay: 50ms;
+        }
+
+        .delay-2 {
+            animation-delay: 100ms;
+        }
+
+        .delay-3 {
+            animation-delay: 150ms;
+        }
+
+        .delay-4 {
+            animation-delay: 200ms;
+        }
 
         /* Auto-start toggle */
         .auto-start {
@@ -1206,8 +1351,13 @@
             align-items: center;
         }
 
-        .config-status.success { color: var(--success); }
-        .config-status.error { color: var(--error); }
+        .config-status.success {
+            color: var(--success);
+        }
+
+        .config-status.error {
+            color: var(--error);
+        }
 
         /* Model Manager */
         .model-manager {
@@ -1408,6 +1558,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="bg-gradient"></div>
 
@@ -1494,49 +1645,74 @@
             <div class="providers">
                 <div class="provider" id="provider-gemini" onclick="loginProvider('gemini')">
                     <div class="provider-icon">
-                        <svg viewBox="0 0 65 65" xmlns="http://www.w3.org/2000/svg"><path d="M32.447 0c.68 0 1.273.465 1.439 1.125a38.904 38.904 0 001.999 5.905c2.152 5 5.105 9.376 8.854 13.125 3.751 3.75 8.126 6.703 13.125 8.855a38.98 38.98 0 005.906 1.999c.66.166 1.124.758 1.124 1.438 0 .68-.464 1.273-1.125 1.439a38.902 38.902 0 00-5.905 1.999c-5 2.152-9.375 5.105-13.125 8.854-3.749 3.751-6.702 8.126-8.854 13.125a38.973 38.973 0 00-2 5.906 1.485 1.485 0 01-1.438 1.124c-.68 0-1.272-.464-1.438-1.125a38.913 38.913 0 00-2-5.905c-2.151-5-5.103-9.375-8.854-13.125-3.75-3.749-8.125-6.702-13.125-8.854a38.973 38.973 0 00-5.905-2A1.485 1.485 0 010 32.448c0-.68.465-1.272 1.125-1.438a38.903 38.903 0 005.905-2c5-2.151 9.376-5.104 13.125-8.854 3.75-3.749 6.703-8.125 8.855-13.125a38.972 38.972 0 001.999-5.905A1.485 1.485 0 0132.447 0z"/></svg>
+                        <svg viewBox="0 0 65 65" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M32.447 0c.68 0 1.273.465 1.439 1.125a38.904 38.904 0 001.999 5.905c2.152 5 5.105 9.376 8.854 13.125 3.751 3.75 8.126 6.703 13.125 8.855a38.98 38.98 0 005.906 1.999c.66.166 1.124.758 1.124 1.438 0 .68-.464 1.273-1.125 1.439a38.902 38.902 0 00-5.905 1.999c-5 2.152-9.375 5.105-13.125 8.854-3.749 3.751-6.702 8.126-8.854 13.125a38.973 38.973 0 00-2 5.906 1.485 1.485 0 01-1.438 1.124c-.68 0-1.272-.464-1.438-1.125a38.913 38.913 0 00-2-5.905c-2.151-5-5.103-9.375-8.854-13.125-3.75-3.749-8.125-6.702-13.125-8.854a38.973 38.973 0 00-5.905-2A1.485 1.485 0 010 32.448c0-.68.465-1.272 1.125-1.438a38.903 38.903 0 005.905-2c5-2.151 9.376-5.104 13.125-8.854 3.75-3.749 6.703-8.125 8.855-13.125a38.972 38.972 0 001.999-5.905A1.485 1.485 0 0132.447 0z" />
+                        </svg>
                     </div>
                     <div class="provider-name">Gemini</div>
                 </div>
                 <div class="provider" id="provider-copilot" onclick="loginProvider('copilot')">
                     <div class="provider-icon">
-                        <svg viewBox="0 0 256 208" xmlns="http://www.w3.org/2000/svg"><path d="M205.28,31.36C219.376,46.24 225.296,66.56 227.792,95.04C234.418,95.04 240.597,96.509 244.768,102.192L252.56,112.752C254.8,115.792 256,119.424 256,123.2V151.888C255.992,155.592 254.157,159.203 251.168,161.392C215.885,187.222 172.35,208 128,208C78.934,208 29.81,179.727 4.832,161.392C1.843,159.203 0.007,155.592 0,151.888V123.2C0,119.424 1.2,115.776 3.424,112.736L11.216,102.192C15.389,96.176 21.595,95.04 28.208,95.04C30.704,66.56 36.608,46.24 50.72,31.36C77.331,3.165 112.567,0.06 127.552,0.001L128,0C142.72,0 178.4,2.88 205.28,31.36ZM128.016,78.736C124.976,78.736 121.472,78.912 117.744,79.28C116.432,84.176 114.496,88.592 111.664,91.408C100.464,102.608 86.96,104.336 79.728,104.336C72.926,104.336 65.801,102.916 59.984,99.248C54.482,101.056 49.198,103.663 48.848,110.16C48.262,122.441 48.211,134.709 48.16,146.984C48.134,153.145 48.109,159.306 48.016,165.472C48.04,169.051 50.198,172.375 53.456,173.856C79.936,185.92 104.976,192 128.016,192C151.024,192 176.064,185.92 202.528,173.856C205.786,172.375 207.943,169.051 207.968,165.472C208.285,147.054 208.03,128.56 207.152,110.16L207.168,110.16C206.826,103.626 201.52,101.062 196,99.248C190.179,102.9 183.073,104.336 176.272,104.336C169.04,104.336 155.552,102.608 144.336,91.408C141.504,88.592 139.568,84.176 138.256,79.28C134.853,78.934 131.436,78.753 128.016,78.736ZM101.075,122.667C106.823,122.667 111.483,127.327 111.483,133.075V152.258C111.483,158.007 106.823,162.667 101.075,162.667C95.327,162.667 90.667,158.007 90.667,152.258V133.075C90.667,127.327 95.327,122.667 101.075,122.667ZM154.408,122.667C160.157,122.667 164.817,127.327 164.817,133.075V152.258C164.817,158.007 160.157,162.667 154.408,162.667C148.66,162.667 144,158.007 144,152.258V133.075C144,127.327 148.66,122.667 154.408,122.667Z"/></svg>
+                        <svg viewBox="0 0 256 208" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M205.28,31.36C219.376,46.24 225.296,66.56 227.792,95.04C234.418,95.04 240.597,96.509 244.768,102.192L252.56,112.752C254.8,115.792 256,119.424 256,123.2V151.888C255.992,155.592 254.157,159.203 251.168,161.392C215.885,187.222 172.35,208 128,208C78.934,208 29.81,179.727 4.832,161.392C1.843,159.203 0.007,155.592 0,151.888V123.2C0,119.424 1.2,115.776 3.424,112.736L11.216,102.192C15.389,96.176 21.595,95.04 28.208,95.04C30.704,66.56 36.608,46.24 50.72,31.36C77.331,3.165 112.567,0.06 127.552,0.001L128,0C142.72,0 178.4,2.88 205.28,31.36ZM128.016,78.736C124.976,78.736 121.472,78.912 117.744,79.28C116.432,84.176 114.496,88.592 111.664,91.408C100.464,102.608 86.96,104.336 79.728,104.336C72.926,104.336 65.801,102.916 59.984,99.248C54.482,101.056 49.198,103.663 48.848,110.16C48.262,122.441 48.211,134.709 48.16,146.984C48.134,153.145 48.109,159.306 48.016,165.472C48.04,169.051 50.198,172.375 53.456,173.856C79.936,185.92 104.976,192 128.016,192C151.024,192 176.064,185.92 202.528,173.856C205.786,172.375 207.943,169.051 207.968,165.472C208.285,147.054 208.03,128.56 207.152,110.16L207.168,110.16C206.826,103.626 201.52,101.062 196,99.248C190.179,102.9 183.073,104.336 176.272,104.336C169.04,104.336 155.552,102.608 144.336,91.408C141.504,88.592 139.568,84.176 138.256,79.28C134.853,78.934 131.436,78.753 128.016,78.736ZM101.075,122.667C106.823,122.667 111.483,127.327 111.483,133.075V152.258C111.483,158.007 106.823,162.667 101.075,162.667C95.327,162.667 90.667,158.007 90.667,152.258V133.075C90.667,127.327 95.327,122.667 101.075,122.667ZM154.408,122.667C160.157,122.667 164.817,127.327 164.817,133.075V152.258C164.817,158.007 160.157,162.667 154.408,162.667C148.66,162.667 144,158.007 144,152.258V133.075C144,127.327 148.66,122.667 154.408,122.667Z" />
+                        </svg>
                     </div>
                     <div class="provider-name">Copilot</div>
                 </div>
                 <div class="provider" id="provider-antigravity" onclick="loginProvider('antigravity')">
                     <div class="provider-icon">
-                        <svg viewBox="0 0 434 400" xmlns="http://www.w3.org/2000/svg"><path d="M392.7 390.1c24.2 18.1 60.4 6 27.2-27.2C320.2 266.2 341.4.3 217.5.3S114.8 266.2 15.1 362.9c-36.3 36.3 3 45.3 27.2 27.2 93.6-70.2 140.5-105.3 175.2-105.3s81.6 35.1 175.2 105.3z"/></svg>
+                        <svg viewBox="0 0 434 400" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M392.7 390.1c24.2 18.1 60.4 6 27.2-27.2C320.2 266.2 341.4.3 217.5.3S114.8 266.2 15.1 362.9c-36.3 36.3 3 45.3 27.2 27.2 93.6-70.2 140.5-105.3 175.2-105.3s81.6 35.1 175.2 105.3z" />
+                        </svg>
                     </div>
                     <div class="provider-name">Antigravity</div>
                 </div>
                 <div class="provider" id="provider-codex" onclick="loginProvider('codex')">
                     <div class="provider-icon">
-                        <svg viewBox="0 0 320 320" xmlns="http://www.w3.org/2000/svg"><path d="m297.06 130.97c7.26-21.79 4.76-45.66-6.85-65.48-17.46-30.4-52.56-46.04-86.84-38.68-15.25-17.18-37.16-26.95-60.13-26.81-35.04-.08-66.13 22.48-76.94-55.86 22.51-4.61 41.94-18.7 53.31-38.67 17.57-30.32 13.55-68.51-9.94-94.51zm-120.28 168.11c-14.03.02-27.62-4.89-38.39-13.88.49-.26 1.34-.73 1.89-1.07l63.72-36.8c3.26-1.85 5.26-5.32 5.24-9.07v-89.83l26.93 15.55c.29.14.48.42.52.74v74.39c-.04 33.08-26.83 59.9-59.91 59.97zm-128.84-55.03c-7.03-12.14-9.56-26.37-7.15-40.18.47.28 1.3.79 1.89 1.13l63.72 36.8c3.23 1.89 7.23 1.89 10.47 0l77.79-44.92v31.1c.02.32-.13.63-.38.83l-64.41 37.19c-28.69 16.52-65.33 6.7-81.92-21.95zm-16.77-139.09c7-12.16 18.05-21.46 31.21-26.29 0 .55-.03 1.52-.03 2.2v73.61c.03 3.74 1.98 7.21 5.23 9.06l77.79 44.91-26.93 15.55c-.27.18-.61.21-.91.08l-64.42-37.22c-28.63-16.58-38.45-53.21-21.95-81.89zm221.26 51.49-77.79-44.92 26.93-15.54c.27-.18.61-.21.91-.08l64.42 37.19c28.68 16.57 38.51 53.26 21.94 81.94-7.01 12.14-18.05 21.44-31.2 26.28v-75.81c.03-3.74-1.96-7.2-5.2-9.06zm26.8-40.34c-.47-.29-1.3-.79-1.89-1.13l-63.72-36.8c-3.23-1.89-7.23-1.89-10.47 0l-77.79 44.92v-31.1c-.02-.32.13-.63.38-.83l64.41-37.16c28.69-16.55 65.37-6.7 81.91 22 6.99 12.12 9.52 26.31 7.15 40.1zm-168.51 55.43-26.94-15.55c-.29-.14-.48-.42-.52-.74v-74.39c.02-33.12 26.89-59.96 60.01-59.94 14.01 0 27.57 4.92 38.34 13.88-.49.26-1.33.73-1.89 1.07l-63.72 36.8c-3.26 1.85-5.26 5.31-5.24 9.06l-.04 89.79zm14.63-31.54 34.65-20.01 34.65 20v40.01l-34.65 20-34.65-20z"/></svg>
+                        <svg viewBox="0 0 320 320" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="m297.06 130.97c7.26-21.79 4.76-45.66-6.85-65.48-17.46-30.4-52.56-46.04-86.84-38.68-15.25-17.18-37.16-26.95-60.13-26.81-35.04-.08-66.13 22.48-76.94-55.86 22.51-4.61 41.94-18.7 53.31-38.67 17.57-30.32 13.55-68.51-9.94-94.51zm-120.28 168.11c-14.03.02-27.62-4.89-38.39-13.88.49-.26 1.34-.73 1.89-1.07l63.72-36.8c3.26-1.85 5.26-5.32 5.24-9.07v-89.83l26.93 15.55c.29.14.48.42.52.74v74.39c-.04 33.08-26.83 59.9-59.91 59.97zm-128.84-55.03c-7.03-12.14-9.56-26.37-7.15-40.18.47.28 1.3.79 1.89 1.13l63.72 36.8c3.23 1.89 7.23 1.89 10.47 0l77.79-44.92v31.1c.02.32-.13.63-.38.83l-64.41 37.19c-28.69 16.52-65.33 6.7-81.92-21.95zm-16.77-139.09c7-12.16 18.05-21.46 31.21-26.29 0 .55-.03 1.52-.03 2.2v73.61c.03 3.74 1.98 7.21 5.23 9.06l77.79 44.91-26.93 15.55c-.27.18-.61.21-.91.08l-64.42-37.22c-28.63-16.58-38.45-53.21-21.95-81.89zm221.26 51.49-77.79-44.92 26.93-15.54c.27-.18.61-.21.91-.08l64.42 37.19c28.68 16.57 38.51 53.26 21.94 81.94-7.01 12.14-18.05 21.44-31.2 26.28v-75.81c.03-3.74-1.96-7.2-5.2-9.06zm26.8-40.34c-.47-.29-1.3-.79-1.89-1.13l-63.72-36.8c-3.23-1.89-7.23-1.89-10.47 0l-77.79 44.92v-31.1c-.02-.32.13-.63.38-.83l64.41-37.16c28.69-16.55 65.37-6.7 81.91 22 6.99 12.12 9.52 26.31 7.15 40.1zm-168.51 55.43-26.94-15.55c-.29-.14-.48-.42-.52-.74v-74.39c.02-33.12 26.89-59.96 60.01-59.94 14.01 0 27.57 4.92 38.34 13.88-.49.26-1.33.73-1.89 1.07l-63.72 36.8c-3.26 1.85-5.26 5.31-5.24 9.06l-.04 89.79zm14.63-31.54 34.65-20.01 34.65 20v40.01l-34.65 20-34.65-20z" />
+                        </svg>
                     </div>
                     <div class="provider-name">Codex</div>
                 </div>
                 <div class="provider" id="provider-claude" onclick="loginProvider('claude')">
                     <div class="provider-icon">
-                        <svg viewBox="0 0 1200 1200" xmlns="http://www.w3.org/2000/svg"><path d="M234 800l235-132 4-11-4-7h-11l-40-2-134-4-116-5-113-6-28-6-27-35 3-18 27-16 34 3 75 5 124 91 18 15 7-5 1-4-9-14-67-122-72-124-32-50-8-30c-3-13-5-24-5-37l37-50 21-7 49 7 21 19 31 70 50 111 77 151 23 45 12 41 5 12h8v-7l6-85 12-104 11-134 4-38 19-45 37-24 29 14 24 38-3 22-14 92-28 144-18 97h11l12-12 49-65 82-103 36-43 42-45 27-21h51l38 56-17 58-53 67-44 56-63 85-39 67 4 6 9-1 142-30 77-14 92-15 41 19 5 20-17 40-98 24-115 23-171 40-2 2 3 4 77 7 33 2h80l150 11 40 26 24 32-5 24-60 31-82-20-191-45-65-16h-9v7l54 53 99 90 125 116 7 29-17 22-17-3-110-82-43-38-97-78h-8v9l22 32 116 175 6 54-8 17-30 11-33-6-68-94-71-107-52-94-6 4-57 361-16 18-33 14-30-23-16-37 16-67 19-97 15-75 14-95 8-31v-3l-7 1-71 98-108 147-86 92-20 8-36-18 3-33 20-27 119-149 72-93 46-54v-8h-3l-315 205-56 7-24-22 3-33 12-13 95-65z"/></svg>
+                        <svg viewBox="0 0 1200 1200" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M234 800l235-132 4-11-4-7h-11l-40-2-134-4-116-5-113-6-28-6-27-35 3-18 27-16 34 3 75 5 124 91 18 15 7-5 1-4-9-14-67-122-72-124-32-50-8-30c-3-13-5-24-5-37l37-50 21-7 49 7 21 19 31 70 50 111 77 151 23 45 12 41 5 12h8v-7l6-85 12-104 11-134 4-38 19-45 37-24 29 14 24 38-3 22-14 92-28 144-18 97h11l12-12 49-65 82-103 36-43 42-45 27-21h51l38 56-17 58-53 67-44 56-63 85-39 67 4 6 9-1 142-30 77-14 92-15 41 19 5 20-17 40-98 24-115 23-171 40-2 2 3 4 77 7 33 2h80l150 11 40 26 24 32-5 24-60 31-82-20-191-45-65-16h-9v7l54 53 99 90 125 116 7 29-17 22-17-3-110-82-43-38-97-78h-8v9l22 32 116 175 6 54-8 17-30 11-33-6-68-94-71-107-52-94-6 4-57 361-16 18-33 14-30-23-16-37 16-67 19-97 15-75 14-95 8-31v-3l-7 1-71 98-108 147-86 92-20 8-36-18 3-33 20-27 119-149 72-93 46-54v-8h-3l-315 205-56 7-24-22 3-33 12-13 95-65z" />
+                        </svg>
                     </div>
                     <div class="provider-name">Claude</div>
                 </div>
                 <div class="provider" id="provider-qwen" onclick="loginProvider('qwen')">
                     <div class="provider-icon">
-                        <svg viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg"><path d="M191.4,122.7c.6,0,.7.3.4.7l-10.1,17.7-31.5,55.4c0,.3-.3.3-.6.3s-.4,0-.6-.3l-41.7-72.7c-.3-.4,0-.6.3-.6h2.7l81.2-.3h-.1ZM115.5,25.9c-.3,0-.4,0-.6.3l-34.6,60.6c-.3.6-.9.9-1.6.9h-34.6c-.7,0-.9.3-.4.9l70.1,122.6c.3.4.1.7-.4.7h-33.7c-1,0-1.9.6-2.4,1.6l-15.9,27.9c-.6,1,0,1.5.9,1.5h69c.6,0,1,.3,1.2.9l16.9,29.7c.6,1,1,1,1.6,0l60.4-105.7,9.5-16.6c0-.3.3-.3.6-.3s.4,0,.6.3l17.2,30.6c.3.4.7.7,1.3.7l33.4-.3c.1,0,.3,0,.4-.3v-.4l-35-61.5c-.3-.4-.3-.9,0-1.3l3.6-6.1,13.5-23.9c.3-.4,0-.7-.4-.7H116.1c-.7,0-.9-.3-.4-.9l17.4-30.3c.3-.4.3-.9,0-1.3l-16.5-28.9c0-.3-.3-.4-.6-.4h-.4ZM156.9,21.2c4.8,8.3,9.5,16.6,14.1,25.1.4.7,1,1,1.9,1h67c2.1,0,3.9,1.3,5.3,4l17.5,31c2.2,4,3,5.8.3,10.1-3.1,5.2-6.2,10.4-9.2,15.7l-4.5,8c-1.3,2.4-2.7,3.4-.4,6.2l32.1,56c2.1,3.6,1.3,5.9-.4,9.4-5.3,9.5-10.7,18.9-16.2,28.2-1.9,3.3-4.3,4.5-8.2,4.5-9.4-.1-18.7,0-28.1.1-.4,0-.7.3-1,.6-10.8,19.2-21.7,38.2-32.7,57.2-2.1,3.6-4.6,4.5-8.8,4.5h-36.4c-2.5,0-4.3-1-5.6-3.3l-16.2-28.1c-.1-.4-.6-.6-1-.6h-61.8c-3.4.3-6.7,0-9.6-1l-19.3-33.4c-1.2-1.9-1.2-4.3,0-6.5l14.5-25.5c.4-.7.4-1.6,0-2.4-7.6-13.2-15.1-26.3-22.6-39.5l-9.5-16.8c-1.9-3.7-2.1-5.9,1.2-11.6,5.6-9.8,11.1-19.6,16.8-29.4,1.6-2.8,3.7-4,7-4h31.3c.6,0,1-.3,1.3-.7l33.8-59.1c1.2-1.9,2.8-3,5-3h19.2l12.3-.3c4.2,0,8.8.4,10.8,4.2v-.6Z"/></svg>
+                        <svg viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M191.4,122.7c.6,0,.7.3.4.7l-10.1,17.7-31.5,55.4c0,.3-.3.3-.6.3s-.4,0-.6-.3l-41.7-72.7c-.3-.4,0-.6.3-.6h2.7l81.2-.3h-.1ZM115.5,25.9c-.3,0-.4,0-.6.3l-34.6,60.6c-.3.6-.9.9-1.6.9h-34.6c-.7,0-.9.3-.4.9l70.1,122.6c.3.4.1.7-.4.7h-33.7c-1,0-1.9.6-2.4,1.6l-15.9,27.9c-.6,1,0,1.5.9,1.5h69c.6,0,1,.3,1.2.9l16.9,29.7c.6,1,1,1,1.6,0l60.4-105.7,9.5-16.6c0-.3.3-.3.6-.3s.4,0,.6.3l17.2,30.6c.3.4.7.7,1.3.7l33.4-.3c.1,0,.3,0,.4-.3v-.4l-35-61.5c-.3-.4-.3-.9,0-1.3l3.6-6.1,13.5-23.9c.3-.4,0-.7-.4-.7H116.1c-.7,0-.9-.3-.4-.9l17.4-30.3c.3-.4.3-.9,0-1.3l-16.5-28.9c0-.3-.3-.4-.6-.4h-.4ZM156.9,21.2c4.8,8.3,9.5,16.6,14.1,25.1.4.7,1,1,1.9,1h67c2.1,0,3.9,1.3,5.3,4l17.5,31c2.2,4,3,5.8.3,10.1-3.1,5.2-6.2,10.4-9.2,15.7l-4.5,8c-1.3,2.4-2.7,3.4-.4,6.2l32.1,56c2.1,3.6,1.3,5.9-.4,9.4-5.3,9.5-10.7,18.9-16.2,28.2-1.9,3.3-4.3,4.5-8.2,4.5-9.4-.1-18.7,0-28.1.1-.4,0-.7.3-1,.6-10.8,19.2-21.7,38.2-32.7,57.2-2.1,3.6-4.6,4.5-8.8,4.5h-36.4c-2.5,0-4.3-1-5.6-3.3l-16.2-28.1c-.1-.4-.6-.6-1-.6h-61.8c-3.4.3-6.7,0-9.6-1l-19.3-33.4c-1.2-1.9-1.2-4.3,0-6.5l14.5-25.5c.4-.7.4-1.6,0-2.4-7.6-13.2-15.1-26.3-22.6-39.5l-9.5-16.8c-1.9-3.7-2.1-5.9,1.2-11.6,5.6-9.8,11.1-19.6,16.8-29.4,1.6-2.8,3.7-4,7-4h31.3c.6,0,1-.3,1.3-.7l33.8-59.1c1.2-1.9,2.8-3,5-3h19.2l12.3-.3c4.2,0,8.8.4,10.8,4.2v-.6Z" />
+                        </svg>
                     </div>
                     <div class="provider-name">Qwen</div>
                 </div>
                 <div class="provider" id="provider-iflow" onclick="loginProvider('iflow')">
                     <div class="provider-icon">
-                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 3v6h8V3h-8zM3 21h8v-6H3v6zm0-8h8V3H3v10zm10 8h8v-10h-8v10z"/></svg>
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M13 3v6h8V3h-8zM3 21h8v-6H3v6zm0-8h8V3H3v10zm10 8h8v-10h-8v10z" />
+                        </svg>
                     </div>
                     <div class="provider-name">iFlow</div>
                 </div>
                 <div class="provider" id="provider-kiro" onclick="loginProvider('kiro')">
                     <div class="provider-icon">
-                        <svg viewBox="0 0 1200 1200" xmlns="http://www.w3.org/2000/svg"><path d="M398.554 818.914C316.315 1001.03 491.477 1046.74 620.672 940.156C658.687 1059.66 801.052 970.473 852.234 877.795C964.787 673.567 919.318 465.357 907.64 422.374C827.637 129.443 427.623 128.946 358.8 423.865C342.651 475.544 342.402 534.18 333.458 595.051C328.986 625.86 325.507 645.488 313.83 677.785C306.873 696.424 297.68 712.819 282.773 740.645C259.915 783.881 269.604 867.113 387.87 823.883L399.051 818.914H398.554Z"/><ellipse cx="636" cy="487" rx="40" ry="63"/><ellipse cx="771" cy="487" rx="40" ry="63"/></svg>
+                        <svg viewBox="0 0 1200 1200" xmlns="http://www.w3.org/2000/svg">
+                            <path
+                                d="M398.554 818.914C316.315 1001.03 491.477 1046.74 620.672 940.156C658.687 1059.66 801.052 970.473 852.234 877.795C964.787 673.567 919.318 465.357 907.64 422.374C827.637 129.443 427.623 128.946 358.8 423.865C342.651 475.544 342.402 534.18 333.458 595.051C328.986 625.86 325.507 645.488 313.83 677.785C306.873 696.424 297.68 712.819 282.773 740.645C259.915 783.881 269.604 867.113 387.87 823.883L399.051 818.914H398.554Z" />
+                            <ellipse cx="636" cy="487" rx="40" ry="63" />
+                            <ellipse cx="771" cy="487" rx="40" ry="63" />
+                        </svg>
                     </div>
                     <div class="provider-name">Kiro</div>
                 </div>
@@ -1565,13 +1741,16 @@
                         <span class="model-panel-title">Available from CLIProxyAPI</span>
                         <span class="model-panel-count" id="availableCount">0</span>
                     </div>
-                    <input type="text" class="model-search" id="availableSearch" placeholder="Filter available models..." oninput="filterAvailableModels()">
+                    <input type="text" class="model-search" id="availableSearch"
+                        placeholder="Filter available models..." oninput="filterAvailableModels()">
                     <div class="model-list-container" id="availableModelsList">
                         <div class="model-empty">Start server to load models</div>
                     </div>
                     <div class="model-panel-actions">
-                        <button class="btn btn-success" onclick="addSelectedModels()" id="btnAddSelected" disabled>+ Add Selected (0)</button>
-                        <button class="btn btn-success" onclick="addAllMissingModels()" id="btnAddAllMissing" disabled>+ Add All Missing</button>
+                        <button class="btn btn-success" onclick="addSelectedModels()" id="btnAddSelected" disabled>+ Add
+                            Selected (0)</button>
+                        <button class="btn btn-success" onclick="addAllMissingModels()" id="btnAddAllMissing" disabled>+
+                            Add All Missing</button>
                     </div>
                 </div>
 
@@ -1581,12 +1760,14 @@
                         <span class="model-panel-title">Factory Config (~/.factory/config.json)</span>
                         <span class="model-panel-count" id="factoryCount">0</span>
                     </div>
-                    <input type="text" class="model-search" id="factorySearch" placeholder="Filter config models..." oninput="filterFactoryModels()">
+                    <input type="text" class="model-search" id="factorySearch" placeholder="Filter config models..."
+                        oninput="filterFactoryModels()">
                     <div class="model-list-container" id="factoryModelsList">
                         <div class="model-empty">No models in config</div>
                     </div>
                     <div class="model-panel-actions">
-                        <button class="btn btn-danger" onclick="removeSelectedModels()" id="btnRemoveSelected" disabled>Remove Selected (0)</button>
+                        <button class="btn btn-danger" onclick="removeSelectedModels()" id="btnRemoveSelected"
+                            disabled>Remove Selected (0)</button>
                         <button class="btn btn-danger" onclick="confirmClearAll()">Clear All</button>
                     </div>
                 </div>
@@ -1602,7 +1783,8 @@
                 <span class="settings-toggle-arrow">▼</span>
             </div>
             <div class="settings-content" id="settingsContent">
-                <textarea class="config-editor" id="configEditor" spellcheck="false" placeholder="Loading configuration..."></textarea>
+                <textarea class="config-editor" id="configEditor" spellcheck="false"
+                    placeholder="Loading configuration..."></textarea>
                 <div class="settings-actions">
                     <div class="config-status" id="configStatus"></div>
                     <button class="btn" onclick="reloadConfig()">Reload</button>
@@ -1685,6 +1867,32 @@
     </div>
 
     <script>
+        // Performance utilities
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        // Visibility API for reducing polling when tab not visible
+        let isTabVisible = true;
+        let statusInterval, authInterval, statsInterval;
+
+        document.addEventListener('visibilitychange', () => {
+            isTabVisible = !document.hidden;
+            if (isTabVisible) {
+                // Resume polling at normal rate
+                checkStatus();
+                checkAuthStatus();
+            }
+        });
+
         let serverStartTime = null;
         let autoStartEnabled = localStorage.getItem('autoStart') === 'true';
 
@@ -1759,7 +1967,7 @@
             const desc = document.getElementById('statusDesc');
             const btnStart = document.getElementById('btnStart');
             const btnStop = document.getElementById('btnStop');
-            
+
             dot.className = 'status-dot starting';
             label.className = 'status-label starting';
             label.textContent = 'Starting';
@@ -1774,7 +1982,7 @@
             const desc = document.getElementById('statusDesc');
             const btnStart = document.getElementById('btnStart');
             const btnStop = document.getElementById('btnStop');
-            
+
             dot.className = 'status-dot starting';
             label.className = 'status-label starting';
             label.textContent = 'Stopping';
@@ -1825,7 +2033,7 @@
             const content = document.getElementById('settingsContent');
             toggle.classList.toggle('open');
             content.classList.toggle('open');
-            
+
             if (content.classList.contains('open')) {
                 loadConfig();
             }
@@ -1854,7 +2062,7 @@
         async function saveConfig() {
             const content = document.getElementById('configEditor').value;
             setConfigStatus('Saving...', '');
-            
+
             try {
                 const res = await fetch('/api/config', {
                     method: 'POST',
@@ -1862,11 +2070,11 @@
                     body: JSON.stringify({ content })
                 });
                 const data = await res.json();
-                
+
                 if (data.success) {
                     setConfigStatus('Saved!', 'success');
                     log('Config saved', 'success');
-                    
+
                     // Restart if server was running
                     const status = await checkStatus();
                     if (status) {
@@ -1888,6 +2096,62 @@
             el.className = 'config-status ' + type;
         }
 
+        // Provider toggle state - stored in localStorage
+        const providerToggles = JSON.parse(localStorage.getItem('providerToggles') || '{}');
+
+        function saveProviderToggles() {
+            localStorage.setItem('providerToggles', JSON.stringify(providerToggles));
+        }
+
+        function toggleProvider(provider, event) {
+            event.stopPropagation(); // Prevent triggering login
+
+            const isEnabled = providerToggles[provider] !== false; // Default to enabled
+            providerToggles[provider] = !isEnabled;
+            saveProviderToggles();
+
+            const el = document.getElementById(`provider-${provider}`);
+            const toggle = document.getElementById(`toggle-${provider}`);
+
+            if (providerToggles[provider]) {
+                el.classList.remove('disabled');
+                toggle.classList.add('enabled');
+                log(`Provider ${provider} enabled`, 'success');
+                showToast(`${provider.charAt(0).toUpperCase() + provider.slice(1)} enabled`);
+            } else {
+                el.classList.add('disabled');
+                toggle.classList.remove('enabled');
+                log(`Provider ${provider} disabled`, 'info');
+                showToast(`${provider.charAt(0).toUpperCase() + provider.slice(1)} disabled`);
+            }
+
+            // Notify backend about toggle change
+            updateProviderToggle(provider, providerToggles[provider]);
+        }
+
+        async function updateProviderToggle(provider, enabled) {
+            try {
+                const res = await fetch('/api/provider-toggle', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ provider, enabled })
+                });
+
+                if (res.ok) {
+                    // Auto-refresh model lists after toggle change
+                    const modelManagerContent = document.getElementById('modelManagerContent');
+                    if (modelManagerContent && modelManagerContent.classList.contains('open')) {
+                        // Refresh the model manager if it's open
+                        await loadModelManager();
+                    }
+                    // Also refresh the models section
+                    await loadModels();
+                }
+            } catch (e) {
+                console.error('Failed to update provider toggle:', e);
+            }
+        }
+
         async function checkAuthStatus() {
             try {
                 const res = await fetch('/api/auth-status');
@@ -1897,10 +2161,38 @@
                     providers.forEach(provider => {
                         const el = document.getElementById(`provider-${provider}`);
                         if (el) {
+                            const existingToggle = document.getElementById(`toggle-${provider}`);
+
                             if (authStatus[provider]) {
                                 el.classList.add('connected');
+
+                                // Add toggle if not exists
+                                if (!existingToggle) {
+                                    const toggleContainer = document.createElement('div');
+                                    toggleContainer.className = 'provider-toggle-container';
+                                    toggleContainer.innerHTML = `
+                                        <div class="provider-toggle ${providerToggles[provider] !== false ? 'enabled' : ''}" 
+                                             id="toggle-${provider}"
+                                             onclick="toggleProvider('${provider}', event)"
+                                             title="Click to enable/disable this provider">
+                                        </div>
+                                    `;
+                                    el.appendChild(toggleContainer);
+                                }
+
+                                // Apply disabled state if toggled off
+                                if (providerToggles[provider] === false) {
+                                    el.classList.add('disabled');
+                                } else {
+                                    el.classList.remove('disabled');
+                                }
                             } else {
                                 el.classList.remove('connected');
+                                el.classList.remove('disabled');
+                                // Remove toggle if exists
+                                if (existingToggle) {
+                                    existingToggle.parentElement.remove();
+                                }
                             }
                         }
                     });
@@ -1914,7 +2206,7 @@
             const section = document.getElementById('modelsSection');
             const list = document.getElementById('modelsList');
             const managerSection = document.getElementById('modelManagerSection');
-            
+
             try {
                 const res = await fetch('/api/models');
                 if (res.ok) {
@@ -1922,7 +2214,7 @@
                     if (data.success && data.models && data.models.length > 0) {
                         section.style.display = 'block';
                         managerSection.style.display = 'block';
-                        list.innerHTML = data.models.map(m => 
+                        list.innerHTML = data.models.map(m =>
                             `<span class="model-item">${m}</span>`
                         ).join('');
                     } else {
@@ -1953,11 +2245,11 @@
         async function startServer() {
             log('Starting server...', 'info');
             setStarting();
-            
+
             try {
                 const res = await fetch('/api/start', { method: 'POST' });
                 const data = await res.json();
-                
+
                 if (data.success) {
                     log(`Server started (PID: ${data.pid})`, 'success');
                     showToast('Server started successfully');
@@ -1977,11 +2269,11 @@
         async function stopServer() {
             log('Stopping server...', 'warning');
             setStopping();
-            
+
             try {
                 const res = await fetch('/api/stop', { method: 'POST' });
                 const data = await res.json();
-                
+
                 if (data.success) {
                     log('Server stopped', 'success');
                     showToast('Server stopped');
@@ -2000,11 +2292,11 @@
         async function restartServer() {
             log('Restarting server...', 'info');
             setStarting();
-            
+
             try {
                 const res = await fetch('/api/restart', { method: 'POST' });
                 const data = await res.json();
-                
+
                 if (data.success) {
                     log(`Server restarted (PID: ${data.pid})`, 'success');
                     showToast('Server restarted');
@@ -2022,11 +2314,11 @@
 
         async function loginProvider(name) {
             log(`Logging in to ${name}...`, 'info');
-            
+
             try {
                 const res = await fetch(`/api/oauth/${name}`, { method: 'POST' });
                 const data = await res.json();
-                
+
                 if (data.success) {
                     log(`OAuth login started for ${name}`, 'success');
                     showToast(`Opening ${name} login...`);
@@ -2049,7 +2341,7 @@
                 if (res.ok) {
                     const data = await res.json();
                     // Show stats section when server is running (stats always returned)
-                    
+
                     // Only show stats if available
                     if (data.available === false) {
                         section.style.display = 'none';
@@ -2095,12 +2387,12 @@
             const notesEl = document.getElementById('updateReleaseNotes');
             const newVersionEl = document.getElementById('updateNewVersion');
             const currentVersionEl = document.getElementById('updateCurrentVersion');
-            
+
             notesEl.textContent = 'Checking for updates...';
             modal.classList.add('show');
-            
+
             const data = await checkForUpdate();
-            
+
             if (data && data.hasUpdate) {
                 currentVersionEl.textContent = data.currentCommit || 'unknown';
                 newVersionEl.textContent = data.latestCommit;
@@ -2125,16 +2417,16 @@
 
         async function applyUpdate() {
             if (!updateInfo || !updateInfo.hasUpdate) return;
-            
+
             const btn = document.getElementById('btnApplyUpdate');
             btn.disabled = true;
             btn.textContent = 'Updating...';
             log('Applying update...', 'info');
-            
+
             try {
                 const res = await fetch('/api/update/apply', { method: 'POST' });
                 const data = await res.json();
-                
+
                 if (data.success) {
                     log(`Update applied: ${data.newCommit} - ${data.commitMessage}`, 'success');
                     showToast('Update applied! Please restart the GUI.');
@@ -2147,7 +2439,7 @@
             } catch (e) {
                 log(`Update error: ${e.message}`, 'error');
             }
-            
+
             btn.disabled = false;
             btn.textContent = 'Update Now';
         }
@@ -2155,7 +2447,7 @@
         // ============================================
         // Model Manager Functions
         // ============================================
-        
+
         let availableModels = [];
         let factoryModels = [];
         let selectedAvailable = new Set();
@@ -2168,10 +2460,10 @@
                 'kiro-claude': 'Kiro',
                 'kiro-': 'Kiro'
             };
-            
+
             let provider = '';
             let name = modelId;
-            
+
             for (const [prefix, prov] of Object.entries(prefixMap)) {
                 if (modelId.startsWith(prefix)) {
                     provider = prov;
@@ -2179,14 +2471,14 @@
                     break;
                 }
             }
-            
+
             const formatted = name
                 .split(/[-_]/)
                 .map(word => word.charAt(0).toUpperCase() + word.slice(1))
                 .join(' ')
                 .replace(/(\d+)\.(\d+)/g, '$1.$2')
                 .replace(/(\d+) (\d+)/g, '$1.$2');
-            
+
             return provider ? `${formatted} [${provider}]` : formatted;
         }
 
@@ -2195,7 +2487,7 @@
             const content = document.getElementById('modelManagerContent');
             toggle.classList.toggle('open');
             content.classList.toggle('open');
-            
+
             if (content.classList.contains('open')) {
                 loadModelManager();
             }
@@ -2238,21 +2530,21 @@
             const countEl = document.getElementById('availableCount');
             const filter = document.getElementById('availableSearch').value.toLowerCase();
             const factoryModelIds = new Set(factoryModels.map(m => m.model));
-            
+
             const filtered = availableModels.filter(m => m.toLowerCase().includes(filter));
             countEl.textContent = filtered.length;
-            
+
             if (filtered.length === 0) {
                 container.innerHTML = '<div class="model-empty">No models found</div>';
                 return;
             }
-            
+
             let missingCount = 0;
             container.innerHTML = filtered.map(modelId => {
                 const isSynced = factoryModelIds.has(modelId);
                 const isSelected = selectedAvailable.has(modelId);
                 if (!isSynced) missingCount++;
-                
+
                 return `
                     <div class="model-row ${isSynced ? 'synced' : ''}" data-model="${modelId}">
                         <input type="checkbox" ${isSelected ? 'checked' : ''} ${isSynced ? 'disabled' : ''} onchange="toggleAvailableSelection('${modelId}')">
@@ -2268,7 +2560,7 @@
                     </div>
                 `;
             }).join('');
-            
+
             updateAvailableButtons(missingCount);
         }
 
@@ -2276,19 +2568,19 @@
             const container = document.getElementById('factoryModelsList');
             const countEl = document.getElementById('factoryCount');
             const filter = document.getElementById('factorySearch').value.toLowerCase();
-            
-            const filtered = factoryModels.filter(m => 
-                m.model.toLowerCase().includes(filter) || 
+
+            const filtered = factoryModels.filter(m =>
+                m.model.toLowerCase().includes(filter) ||
                 (m.display_name && m.display_name.toLowerCase().includes(filter))
             );
             countEl.textContent = filtered.length;
-            
+
             if (filtered.length === 0) {
                 container.innerHTML = '<div class="model-empty">No models in config</div>';
                 updateFactoryButtons();
                 return;
             }
-            
+
             container.innerHTML = filtered.map(m => {
                 const isSelected = selectedFactory.has(m.model);
                 return `
@@ -2304,7 +2596,7 @@
                     </div>
                 `;
             }).join('');
-            
+
             updateFactoryButtons();
         }
 
@@ -2330,10 +2622,10 @@
             const btn = document.getElementById('btnAddSelected');
             const btnAll = document.getElementById('btnAddAllMissing');
             const count = selectedAvailable.size;
-            
+
             btn.textContent = `+ Add Selected (${count})`;
             btn.disabled = count === 0;
-            
+
             if (missingCount !== undefined) {
                 btnAll.textContent = `+ Add All Missing (${missingCount})`;
                 btnAll.disabled = missingCount === 0;
@@ -2347,13 +2639,14 @@
             btn.disabled = count === 0;
         }
 
-        function filterAvailableModels() {
+        // Debounced filter functions for better performance
+        const filterAvailableModels = debounce(() => {
             renderAvailableModels();
-        }
+        }, 150);
 
-        function filterFactoryModels() {
+        const filterFactoryModels = debounce(() => {
             renderFactoryModels();
-        }
+        }, 150);
 
         async function addSingleModel(modelId) {
             const displayName = generateDisplayName(modelId);
@@ -2362,12 +2655,12 @@
 
         async function addSelectedModels() {
             if (selectedAvailable.size === 0) return;
-            
+
             const displayNames = {};
             selectedAvailable.forEach(modelId => {
                 displayNames[modelId] = generateDisplayName(modelId);
             });
-            
+
             await addModelsToFactory([...selectedAvailable], displayNames);
             selectedAvailable.clear();
         }
@@ -2375,14 +2668,14 @@
         async function addAllMissingModels() {
             const factoryModelIds = new Set(factoryModels.map(m => m.model));
             const missing = availableModels.filter(m => !factoryModelIds.has(m));
-            
+
             if (missing.length === 0) return;
-            
+
             const displayNames = {};
             missing.forEach(modelId => {
                 displayNames[modelId] = generateDisplayName(modelId);
             });
-            
+
             await addModelsToFactory(missing, displayNames);
         }
 
@@ -2394,7 +2687,7 @@
                     body: JSON.stringify({ models, displayNames })
                 });
                 const data = await res.json();
-                
+
                 if (data.success) {
                     const count = data.added?.length || 0;
                     log(`Added ${count} model(s) to Factory config`, 'success');
@@ -2427,7 +2720,7 @@
                     body: JSON.stringify(all ? { all: true } : { models })
                 });
                 const data = await res.json();
-                
+
                 if (data.success) {
                     const count = data.removed?.length || 0;
                     log(`Removed ${count} model(s) from Factory config`, 'success');
@@ -2447,10 +2740,10 @@
                 showToast('No models to clear');
                 return;
             }
-            
-            document.getElementById('confirmMessage').textContent = 
+
+            document.getElementById('confirmMessage').textContent =
                 `Remove all ${factoryModels.length} models from Factory config?`;
-            document.getElementById('confirmWarning').textContent = 
+            document.getElementById('confirmWarning').textContent =
                 'This action cannot be undone.';
             pendingConfirmAction = () => removeModelsFromFactory([], true);
             document.getElementById('confirmModal').classList.add('show');
@@ -2489,32 +2782,75 @@
 
         // Init
         document.addEventListener('DOMContentLoaded', async () => {
+            // Check if running through server or opened directly
+            const isFileProtocol = window.location.protocol === 'file:';
+            if (isFileProtocol) {
+                // Show error - file opened directly without server
+                document.body.innerHTML = `
+                    <div class="bg-gradient"></div>
+                    <div class="container" style="text-align: center; padding-top: 100px;">
+                        <div class="logo" style="justify-content: center; margin-bottom: 24px;">
+                            <div class="logo-icon">⚡</div>
+                            <span class="logo-text">CLIProxyAPI+</span>
+                        </div>
+                        <h2 style="color: var(--error); margin-bottom: 16px;">GUI Server Not Running</h2>
+                        <p style="color: var(--text-2); margin-bottom: 24px;">
+                            The Control Center requires the GUI server to function properly.<br>
+                            Please start it using one of these commands:
+                        </p>
+                        <div style="background: var(--bg-2); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; text-align: left; max-width: 400px; margin: 0 auto;">
+                            <div style="font-family: 'Geist Mono', monospace; font-size: 13px; color: var(--success); margin-bottom: 12px;">
+                                $ cp-gui
+                            </div>
+                            <div style="font-size: 12px; color: var(--text-3); margin-bottom: 16px;">or</div>
+                            <div style="font-family: 'Geist Mono', monospace; font-size: 13px; color: var(--success);">
+                                $ python3 ~/bin/gui-server.py
+                            </div>
+                        </div>
+                        <p style="color: var(--text-3); font-size: 12px; margin-top: 20px;">
+                            If cp-gui is not found, ensure ~/bin is in your PATH.
+                        </p>
+                    </div>
+                `;
+                return;
+            }
+
             // Set auto-start checkbox
             document.getElementById('autoStartToggle').checked = autoStartEnabled;
-            
+
             log('Control Center ready', 'success');
             const running = await checkStatus();
             await checkAuthStatus();
-            
+
             // Auto-start if enabled and server not running
             if (autoStartEnabled && !running) {
                 log('Auto-starting server...', 'info');
                 await startServer();
             }
-            
+
             // Load stats and show model manager if server is running
             if (running) {
                 await loadStats();
                 updateModelManagerVisibility(true);
             }
-            
+
             // Check for updates on load
             await checkForUpdate();
-            
-            setInterval(checkStatus, 5000);
-            setInterval(checkAuthStatus, 10000);
-            setInterval(loadStats, 10000); // Refresh stats every 10s
+
+            // Smart polling - skip when tab not visible
+            statusInterval = setInterval(() => {
+                if (isTabVisible) checkStatus();
+            }, 5000);
+
+            authInterval = setInterval(() => {
+                if (isTabVisible) checkAuthStatus();
+            }, 10000);
+
+            statsInterval = setInterval(() => {
+                if (isTabVisible) loadStats();
+            }, 15000); // Increased to 15s for better performance
         });
     </script>
 </body>
+
 </html>

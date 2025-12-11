@@ -263,8 +263,34 @@ def get_auth_status():
     return status
 
 
+def get_model_provider(model_id):
+    """Identify which provider a model belongs to based on its ID"""
+    model_lower = model_id.lower()
+    
+    # Provider prefixes mapping
+    if any(x in model_lower for x in ['gemini', 'tstars', 'learnlm']):
+        return 'gemini'
+    elif any(x in model_lower for x in ['copilot', 'gpt-4', 'gpt-5', 'o1-', 'o3-', 'o4-']):
+        return 'copilot'
+    elif 'gemini-claude' in model_lower or model_lower.startswith('antigravity'):
+        return 'antigravity'
+    elif any(x in model_lower for x in ['codex', 'code-davinci']):
+        return 'codex'
+    elif any(x in model_lower for x in ['claude', 'sonnet', 'opus', 'haiku']):
+        return 'claude'
+    elif any(x in model_lower for x in ['qwen', 'qwq']):
+        return 'qwen'
+    elif any(x in model_lower for x in ['iflow', 'deepseek', 'grok', 'raptor']):
+        return 'iflow'
+    elif any(x in model_lower for x in ['kiro', 'kiro-claude', 'kimi']):
+        return 'kiro'
+    
+    # Default - try to match by first part of model name
+    return None
+
+
 def get_available_models():
-    """Get available models from running server"""
+    """Get available models from running server, filtered by provider toggles"""
     proc = get_server_process()
     if not proc:
         return {'success': False, 'error': 'Server not running', 'models': []}
@@ -277,8 +303,22 @@ def get_available_models():
         )
         with urllib.request.urlopen(req, timeout=5) as response:
             data = json.loads(response.read())
-            models = [m['id'] for m in data.get('data', [])]
-            return {'success': True, 'models': models}
+            all_models = [m['id'] for m in data.get('data', [])]
+            
+            # Get provider toggle states
+            toggles = get_provider_toggles()
+            
+            # Filter models based on provider toggles
+            filtered_models = []
+            for model in all_models:
+                provider = get_model_provider(model)
+                # Include model if:
+                # 1. Provider not identified (unknown provider)
+                # 2. Provider is enabled (toggles.get(provider) is not False)
+                if provider is None or toggles.get(provider, True):
+                    filtered_models.append(model)
+            
+            return {'success': True, 'models': filtered_models, 'total': len(all_models)}
     except Exception as e:
         return {'success': False, 'error': str(e), 'models': []}
 
@@ -412,6 +452,40 @@ def remove_factory_models(data):
         
         save_factory_config(config)
         return {'success': True, 'removed': models}
+    except Exception as e:
+        return {'success': False, 'error': str(e)}
+
+
+# Provider toggles file
+PROVIDER_TOGGLES_FILE = CONFIG_DIR / "provider-toggles.json"
+
+
+def get_provider_toggles():
+    """Get provider toggle states"""
+    if PROVIDER_TOGGLES_FILE.exists():
+        try:
+            return json.loads(PROVIDER_TOGGLES_FILE.read_text())
+        except:
+            pass
+    return {}
+
+
+def set_provider_toggle(data):
+    """Set provider toggle state"""
+    try:
+        provider = data.get('provider')
+        enabled = data.get('enabled', True)
+        
+        if not provider:
+            return {'success': False, 'error': 'Provider not specified'}
+        
+        toggles = get_provider_toggles()
+        toggles[provider] = enabled
+        
+        PROVIDER_TOGGLES_FILE.write_text(json.dumps(toggles, indent=2))
+        log(f"Provider {provider} {'enabled' if enabled else 'disabled'}")
+        
+        return {'success': True, 'provider': provider, 'enabled': enabled}
     except Exception as e:
         return {'success': False, 'error': str(e)}
 
@@ -653,6 +727,8 @@ class GUIRequestHandler(BaseHTTPRequestHandler):
             self.send_json(add_factory_models(data))
         elif path == '/api/factory-config/remove':
             self.send_json(remove_factory_models(data))
+        elif path == '/api/provider-toggle':
+            self.send_json(set_provider_toggle(data))
         else:
             self.send_json({'error': 'Not found'}, 404)
 

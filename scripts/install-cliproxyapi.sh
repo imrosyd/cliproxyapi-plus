@@ -387,13 +387,28 @@ elif [ -f "$HOME/.bash_profile" ]; then
 fi
 
 if [[ ":$PATH:" != *":$BIN_DIR:"* ]]; then
+    # Add to shell RC file
     if [ -n "$SHELL_RC" ]; then
-        echo "" >> "$SHELL_RC"
-        echo "# CLIProxyAPI-Plus" >> "$SHELL_RC"
-        echo 'export PATH="$HOME/bin:$PATH"' >> "$SHELL_RC"
-        write_success "Added $BIN_DIR to PATH in $SHELL_RC"
+        # Check if already added (avoid duplicates)
+        if ! grep -q 'CLIProxyAPI-Plus' "$SHELL_RC" 2>/dev/null; then
+            echo "" >> "$SHELL_RC"
+            echo "# CLIProxyAPI-Plus" >> "$SHELL_RC"
+            echo 'export PATH="$HOME/bin:$PATH"' >> "$SHELL_RC"
+            write_success "Added $BIN_DIR to PATH in $SHELL_RC"
+        fi
         PATH_ADDED=true
     fi
+    
+    # Also add to .profile for login shells (important for WSL)
+    if [ -f "$HOME/.profile" ]; then
+        if ! grep -q 'CLIProxyAPI-Plus' "$HOME/.profile" 2>/dev/null; then
+            echo "" >> "$HOME/.profile"
+            echo "# CLIProxyAPI-Plus" >> "$HOME/.profile"
+            echo 'export PATH="$HOME/bin:$PATH"' >> "$HOME/.profile"
+            write_success "Added $BIN_DIR to PATH in ~/.profile"
+        fi
+    fi
+    
     export PATH="$BIN_DIR:$PATH"
 else
     write_success "$BIN_DIR already in PATH"

@@ -155,6 +155,7 @@ source ~/.zshrc
 | `cp-start` | Start/stop/restart server |
 | `cp-login` | Login to OAuth providers |
 | `cp-gui` | Open GUI control center |
+| `cp-service` | Manage background service |
 | `cp-update` | Update to latest version |
 | `cp-uninstall` | Uninstall application |
 
@@ -189,7 +190,37 @@ cp-update
 
 # Uninstall
 cp-uninstall
+
+# Install as background service (auto-start)
+cp-service install
+
+# Check service status
+cp-service status
+
+# View service logs
+cp-service logs
 ```
+
+---
+
+## 🔄 Background Service
+
+Run CLIProxyAPI-Plus as a background service with auto-start:
+
+```bash
+# Install and enable service
+cp-service install
+
+# Service commands
+cp-service status     # Check if running
+cp-service logs       # View logs (live)
+cp-service restart    # Restart service
+cp-service stop       # Stop service
+cp-service start      # Start service
+cp-service uninstall  # Remove service
+```
+
+**Note:** On WSL, auto-start is handled via `.bashrc`. On native Linux, systemd is used.
 
 ---
 
@@ -274,12 +305,24 @@ cp-gui
 ```
 
 **Features:**
-- Real-time server status
+- Real-time server status with auto-refresh
 - Start/Stop/Restart controls
-- OAuth login buttons
-- Model list
-- Configuration editor
+- **Provider Toggle** - Enable/disable providers without logout
+- **Factory Model Manager** - Sync models to Droid/Factory config
+- OAuth login buttons for all providers
+- Model list filtered by active providers
+- Configuration editor with backup
 - Activity logs
+
+### Provider Toggle
+Toggle providers ON/OFF to show/hide their models. Useful for focusing on specific AI providers without affecting login status.
+
+### Factory Model Manager
+Easily sync available models to your `~/.factory/config.json`:
+- View all available models from active providers
+- Add single or multiple models to Factory config
+- Remove models or clear all
+- Auto-generated display names
 
 ---
 
