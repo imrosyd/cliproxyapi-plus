@@ -617,6 +617,8 @@ class GUIRequestHandler(BaseHTTPRequestHandler):
             self.send_json(get_request_stats())
         elif path == '/api/update-info':
             self.send_json(get_update_info())
+        elif path == '/api/factory-config':
+            self.send_json(get_factory_config())
         else:
             self.send_json({'error': 'Not found'}, 404)
     
