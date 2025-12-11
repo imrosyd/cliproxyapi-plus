@@ -2225,7 +2225,7 @@
                 const res = await fetch('/api/factory-config');
                 if (res.ok) {
                     const data = await res.json();
-                    factoryModels = data.models || [];
+                    factoryModels = data.custom_models || [];
                 }
             } catch (e) {
                 console.error('Failed to load factory config:', e);
