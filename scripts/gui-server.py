@@ -343,6 +343,79 @@ def get_request_stats():
     }
 
 
+def get_factory_config():
+    """Read ~/.factory/config.json"""
+    factory_path = Path.home() / '.factory' / 'config.json'
+    if factory_path.exists():
+        try:
+            return json.loads(factory_path.read_text())
+        except:
+            pass
+    return {'custom_models': []}
+
+
+def save_factory_config(config):
+    """Save ~/.factory/config.json"""
+    factory_path = Path.home() / '.factory' / 'config.json'
+    factory_path.parent.mkdir(parents=True, exist_ok=True)
+    factory_path.write_text(json.dumps(config, indent=2))
+
+
+def add_factory_models(data):
+    """Add models to factory config"""
+    try:
+        models = data.get('models', [])
+        display_names = data.get('displayNames', {})
+        
+        if not models:
+            return {'success': False, 'error': 'No models specified'}
+        
+        config = get_factory_config()
+        existing_ids = {m.get('model') for m in config.get('custom_models', [])}
+        
+        added = []
+        for model_id in models:
+            if model_id not in existing_ids:
+                display_name = display_names.get(model_id, model_id)
+                config['custom_models'].append({
+                    'model_display_name': display_name,
+                    'model': model_id,
+                    'base_url': 'http://localhost:8317/v1',
+                    'api_key': 'sk-dummy',
+                    'provider': 'openai'
+                })
+                added.append(model_id)
+        
+        save_factory_config(config)
+        return {'success': True, 'added': added}
+    except Exception as e:
+        return {'success': False, 'error': str(e)}
+
+
+def remove_factory_models(data):
+    """Remove models from factory config"""
+    try:
+        if data.get('all'):
+            save_factory_config({'custom_models': []})
+            return {'success': True, 'removed': ['all']}
+        
+        models = data.get('models', [])
+        if not models:
+            return {'success': False, 'error': 'No models specified'}
+        
+        config = get_factory_config()
+        models_set = set(models)
+        
+        original_count = len(config.get('custom_models', []))
+        config['custom_models'] = [m for m in config.get('custom_models', []) if m.get('model') not in models_set]
+        removed_count = original_count - len(config['custom_models'])
+        
+        save_factory_config(config)
+        return {'success': True, 'removed': models}
+    except Exception as e:
+        return {'success': False, 'error': str(e)}
+
+
 def get_local_version():
     """Get local version info"""
     if VERSION_FILE.exists():
@@ -574,6 +647,10 @@ class GUIRequestHandler(BaseHTTPRequestHandler):
             self.send_json(set_config_content(content))
         elif path == '/api/update':
             self.send_json(install_update())
+        elif path == '/api/factory-config/add':
+            self.send_json(add_factory_models(data))
+        elif path == '/api/factory-config/remove':
+            self.send_json(remove_factory_models(data))
         else:
             self.send_json({'error': 'Not found'}, 404)
 
