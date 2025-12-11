@@ -320,7 +320,7 @@ function Reset-RequestStats {
 # ============================================
 
 $VERSION_FILE = Join-Path $CONFIG_DIR "version.json"
-$GITHUB_REPO = "julianromli/CLIProxyAPIPlus-Easy-Installation"
+$GITHUB_REPO = "imrosyd/cliproxyapi-plus"
 $UPSTREAM_REPO = "router-for-me/CLIProxyAPIPlus"
 
 function Get-LocalVersion {

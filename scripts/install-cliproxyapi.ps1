@@ -249,6 +249,67 @@ if (Test-Path $binaryPath) {
     exit 1
 }
 
+# Create short command aliases
+Write-Step "Creating command aliases..."
+$scriptDir = Split-Path -Parent $PSCommandPath
+
+# Copy helper scripts to bin
+$helperScripts = @(
+    "start-cliproxyapi.ps1",
+    "cliproxyapi-oauth.ps1", 
+    "gui-cliproxyapi.ps1",
+    "update-cliproxyapi.ps1",
+    "uninstall-cliproxyapi.ps1"
+)
+
+foreach ($script in $helperScripts) {
+    $sourcePath = Join-Path $scriptDir $script
+    $destPath = Join-Path $BIN_DIR $script
+    if (Test-Path $sourcePath) {
+        Copy-Item -Path $sourcePath -Destination $destPath -Force
+    }
+}
+
+# Create cp-* wrapper scripts
+$wrappers = @{
+    "cp-start.ps1" = "start-cliproxyapi.ps1"
+    "cp-login.ps1" = "cliproxyapi-oauth.ps1"
+    "cp-gui.ps1" = "gui-cliproxyapi.ps1"
+    "cp-update.ps1" = "update-cliproxyapi.ps1"
+    "cp-uninstall.ps1" = "uninstall-cliproxyapi.ps1"
+}
+
+foreach ($wrapper in $wrappers.GetEnumerator()) {
+    $wrapperPath = Join-Path $BIN_DIR $wrapper.Key
+    $targetScript = $wrapper.Value
+    
+    @"
+# Wrapper for $targetScript
+`$scriptPath = Join-Path (Split-Path -Parent `$PSCommandPath) "$targetScript"
+if (Test-Path `$scriptPath) {
+    & `$scriptPath @args
+} else {
+    Write-Error "Target script not found: `$scriptPath"
+    exit 1
+}
+"@ | Out-File -FilePath $wrapperPath -Encoding utf8 -Force
+}
+
+# Create cp-status wrapper
+$cpStatusPath = Join-Path $BIN_DIR "cp-status.ps1"
+@"
+# Wrapper for start-cliproxyapi.ps1 -Status
+`$scriptPath = Join-Path (Split-Path -Parent `$PSCommandPath) "start-cliproxyapi.ps1"
+if (Test-Path `$scriptPath) {
+    & `$scriptPath -Status @args
+} else {
+    Write-Error "Target script not found: `$scriptPath"
+    exit 1
+}
+"@ | Out-File -FilePath $cpStatusPath -Encoding utf8 -Force
+
+Write-Success "Created: cp-start, cp-login, cp-gui, cp-status, cp-update, cp-uninstall"
+
 # Add ~/bin to PATH if not already
 Write-Step "Configuring PATH..."
 $userPath = [Environment]::GetEnvironmentVariable("Path", "User")
@@ -311,18 +372,24 @@ Installed Files:
   Config:   $CONFIG_DIR\config.yaml
   Droid:    $FACTORY_DIR\config.json
 
-Available Scripts (in $BIN_DIR):
-  start-cliproxyapi     Start/stop/restart server
-  cliproxyapi-oauth     Login to OAuth providers
-  gui-cliproxyapi       Open Control Center GUI
-  update-cliproxyapi    Update to latest version
-  uninstall-cliproxyapi Remove everything
+Available Commands (after PATH refresh):
+  cp-start              Start/stop/restart server
+  cp-login              Login to OAuth providers
+  cp-gui                Open Control Center GUI
+  cp-status             Check server status
+  cp-update             Update to latest version
+  cp-uninstall          Remove everything
+
+  Legacy commands (still available):
+  start-cliproxyapi, cliproxyapi-oauth, gui-cliproxyapi, 
+  update-cliproxyapi, uninstall-cliproxyapi
 
 Quick Start:
-  1. Start server:    start-cliproxyapi -Background
-  2. Login OAuth:     cliproxyapi-oauth -All
-  3. Open GUI:        gui-cliproxyapi
-  4. Use with Droid:  droid (select cliproxyapi-plus/* model)
+  1. Start server:    cp-start -Background
+  2. Login OAuth:     cp-login -All
+  3. Check status:    cp-status
+  4. Open GUI:        cp-gui
+  5. Use with Droid:  droid (select cliproxyapi-plus/* model)
 "@ -ForegroundColor Cyan
 
 if ($pathAdded) {

@@ -29,9 +29,17 @@ $items = @(
     @{ Name = "Binary"; Path = "$BIN_DIR\cliproxyapi-plus.exe"; Type = "File"; Always = $true }
     @{ Name = "Binary backup"; Path = "$BIN_DIR\cliproxyapi-plus.exe.old"; Type = "File"; Always = $true }
     @{ Name = "Install script"; Path = "$BIN_DIR\install-cliproxyapi.ps1"; Type = "File"; Always = $true }
+    @{ Name = "Start script"; Path = "$BIN_DIR\start-cliproxyapi.ps1"; Type = "File"; Always = $true }
     @{ Name = "Update script"; Path = "$BIN_DIR\update-cliproxyapi.ps1"; Type = "File"; Always = $true }
     @{ Name = "OAuth script"; Path = "$BIN_DIR\cliproxyapi-oauth.ps1"; Type = "File"; Always = $true }
+    @{ Name = "GUI script"; Path = "$BIN_DIR\gui-cliproxyapi.ps1"; Type = "File"; Always = $true }
     @{ Name = "Uninstall script"; Path = "$BIN_DIR\uninstall-cliproxyapi.ps1"; Type = "File"; Always = $true }
+    @{ Name = "cp-start alias"; Path = "$BIN_DIR\cp-start.ps1"; Type = "File"; Always = $true }
+    @{ Name = "cp-login alias"; Path = "$BIN_DIR\cp-login.ps1"; Type = "File"; Always = $true }
+    @{ Name = "cp-gui alias"; Path = "$BIN_DIR\cp-gui.ps1"; Type = "File"; Always = $true }
+    @{ Name = "cp-status alias"; Path = "$BIN_DIR\cp-status.ps1"; Type = "File"; Always = $true }
+    @{ Name = "cp-update alias"; Path = "$BIN_DIR\cp-update.ps1"; Type = "File"; Always = $true }
+    @{ Name = "cp-uninstall alias"; Path = "$BIN_DIR\cp-uninstall.ps1"; Type = "File"; Always = $true }
     @{ Name = "Clone directory"; Path = $CLONE_DIR; Type = "Directory"; Always = $true }
     @{ Name = "Config (config.yaml)"; Path = "$CONFIG_DIR\config.yaml"; Type = "File"; Always = $true }
     @{ Name = "Logs directory"; Path = "$CONFIG_DIR\logs"; Type = "Directory"; Always = $true }

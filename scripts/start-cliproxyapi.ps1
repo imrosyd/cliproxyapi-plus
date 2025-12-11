@@ -11,7 +11,7 @@
     start-cliproxyapi.ps1 -Logs        # View logs
 .NOTES
     Author: Auto-generated
-    Repo: https://github.com/julianromli/CLIProxyAPIPlus-Easy-Installation
+    Repo: https://github.com/imrosyd/cliproxyapi-plus
 #>
 
 param(
