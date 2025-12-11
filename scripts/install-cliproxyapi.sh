@@ -475,11 +475,49 @@ if [ "$PATH_ADDED" = true ]; then
     echo -e "${YELLOW}"
     cat << EOF
 
-NOTE: Restart your terminal or run:
-      source $SHELL_RC
+NOTE: PATH telah ditambahkan ke $SHELL_RC
 EOF
     echo -e "${NC}"
 fi
 
-echo -e "${GREEN}=============================================="
+# Auto-start server
+write_step "Starting CLIProxyAPI server..."
+export PATH="$BIN_DIR:$PATH"
+
+# Try to start server in background
+if [ -f "$BIN_DIR/start-cliproxyapi" ]; then
+    "$BIN_DIR/start-cliproxyapi" --background 2>/dev/null &
+    sleep 2
+    
+    # Check if server started
+    if curl -s http://localhost:8317/health >/dev/null 2>&1 || pgrep -f "$BINARY_NAME" >/dev/null 2>&1; then
+        write_success "Server started on http://localhost:8317"
+    else
+        write_warning "Server may have failed to start. Run: cp-start --background"
+    fi
+else
+    write_warning "start-cliproxyapi not found. Run: cp-start --background"
+fi
+
+echo -e "${GREEN}"
+cat << EOF
+
+==============================================
+  Installation Complete!
+==============================================
+Server running on: http://localhost:8317
+GUI available at:  http://localhost:8318
+
+Next Steps:
+  1. Login to providers: cp-login
+  2. Check status:       cp-start --status
+  3. Use with Droid:     Select cliproxyapi-plus model
+
+Available Commands:
+  cp-start    Start/stop/restart server
+  cp-login    Login to OAuth providers
+  cp-status   Check server status
+  cp-update   Update to latest version
+==============================================
+EOF
 echo -e "${NC}"
