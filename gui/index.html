@@ -2390,7 +2390,31 @@
 
                 if (data.success) {
                     log(`OAuth login started for ${name}`, 'success');
-                    showToast(`Opening ${name} login...`);
+                    
+                    // If login URL was found, open it in client's browser
+                    if (data.login_url) {
+                        log(`Opening ${name} login page...`, 'info');
+                        
+                        // Show device code if present
+                        if (data.device_code) {
+                            showToast(`Code: ${data.device_code} - Opening login page...`, 5000);
+                            log(`Device code: ${data.device_code}`, 'success');
+                        } else {
+                            showToast(`Opening ${name} login...`);
+                        }
+                        
+                        // Open URL in new tab (client-side)
+                        window.open(data.login_url, '_blank');
+                    } else {
+                        // URL not found - CLI may have opened browser server-side
+                        showToast(`Check for ${name} login popup or wait...`);
+                        log(`No URL returned - login may open automatically`, 'info');
+                    }
+                    
+                    // Start polling for auth status
+                    setTimeout(checkAuthStatus, 3000);
+                    setTimeout(checkAuthStatus, 10000);
+                    setTimeout(checkAuthStatus, 30000);
                 } else {
                     log(`Failed: ${data.error}`, 'error');
                     showToast(data.error);

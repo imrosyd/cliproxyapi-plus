@@ -375,7 +375,40 @@ print(response.choices[0].message.content)
 
 ---
 
-## 📁 File Locations
+## 📁 Project Structure
+
+```
+cliproxyapi-plus/
+├── scripts/                        # Installation and runtime scripts
+│   ├── install-cliproxyapi.sh      # Linux/macOS installer
+│   ├── install-cliproxyapi.ps1     # Windows installer
+│   ├── start-cliproxyapi.sh        # Server start/stop script
+│   ├── start-cliproxyapi.ps1       # Windows server script
+│   ├── cliproxyapi-oauth.sh        # OAuth login handler
+│   ├── cliproxyapi-oauth.ps1       # Windows OAuth handler
+│   ├── gui-cliproxyapi.sh          # GUI launcher
+│   ├── gui-cliproxyapi.ps1         # Windows GUI launcher
+│   ├── gui-server.py               # Python HTTP server for GUI
+│   ├── service-cliproxyapi.sh      # Background service manager
+│   ├── update-cliproxyapi.sh       # Update script
+│   ├── update-cliproxyapi.ps1      # Windows update script
+│   ├── uninstall-cliproxyapi.sh    # Uninstaller
+│   ├── uninstall-cliproxyapi.ps1   # Windows uninstaller
+│   └── wsl-browser.sh              # WSL browser helper
+├── gui/
+│   └── index.html                  # Web-based GUI control center
+├── configs/
+│   ├── config.yaml.example         # Configuration template
+│   └── droid-config.json.example   # Droid/Factory integration example
+├── docs/
+│   └── BUG-server-side-browser.md  # Known bug documentation
+├── README.md
+└── LICENSE
+```
+
+---
+
+## 📁 File Locations (Runtime)
 
 ### Linux/macOS
 ```
@@ -391,6 +424,41 @@ print(response.choices[0].message.content)
 %USERPROFILE%\bin\cliproxyapi-plus.exe
 %USERPROFILE%\.cli-proxy-api\config.yaml
 %USERPROFILE%\.cli-proxy-api\*.json
+```
+
+---
+
+## ⚙️ Configuration
+
+Copy [`configs/config.yaml.example`](configs/config.yaml.example) to `~/.cli-proxy-api/config.yaml`:
+
+```yaml
+# Server port (default: 8317)
+port: 8317
+
+# Directory to store OAuth tokens
+auth-dir: "~/.cli-proxy-api"
+
+# API keys for authentication
+api-keys:
+  - "sk-dummy"
+
+# Quota exceeded behavior
+quota-exceeded:
+  switch-project: true
+  switch-preview-model: true
+
+# Open OAuth URLs in incognito mode
+incognito-browser: true
+
+# Number of retry attempts
+request-retry: 3
+
+# Remote management
+remote-management:
+  allow-remote: false
+  secret-key: ""
+  disable-control-panel: false
 ```
 
 ---
@@ -425,6 +493,28 @@ ls ~/.gemini/oauth_creds.json
 # Copy manually
 cp ~/.gemini/oauth_creds.json ~/.cli-proxy-api/gemini-email.json
 ```
+
+---
+
+## 🐛 Known Bugs
+
+### OAuth Browser Opens on Server (WSL/Tunnel)
+
+**Issue:** When accessing GUI through a remote tunnel (e.g., Cloudflare tunnel), OAuth login opens the browser on the **server** instead of the client browser.
+
+**Status:** Partially mitigated
+- ✅ GUI returns `login_url` and `device_code` to client
+- ✅ Frontend uses `window.open()` for client-side popup
+- ❌ CLI binary still opens browser on server simultaneously
+
+**Workaround:**
+1. Ignore the browser that opens on the server
+2. Use the popup from the GUI on your local browser
+3. For device code flow (Copilot), copy the code from GUI modal
+
+**Affected:** Remote/tunnel users only (local users unaffected)
+
+See [`docs/BUG-server-side-browser.md`](docs/BUG-server-side-browser.md) for details.
 
 ---
 

@@ -212,8 +212,126 @@ def restart_api_server():
     return start_api_server()
 
 
+def is_wsl():
+    """Check if running in WSL"""
+    try:
+        with open('/proc/version', 'r') as f:
+            return 'microsoft' in f.read().lower()
+    except:
+        return False
+
+
+def open_url_in_browser(url):
+    """Open URL in browser, handling WSL specially"""
+    try:
+        if is_wsl():
+            # Use cmd.exe to open URL in Windows browser
+            # Run from /mnt/c to avoid UNC path error
+            # Don't escape URL, Windows handles it
+            log(f"Opening in Windows browser: {url[:80]}...")
+            subprocess.Popen(
+                ['/mnt/c/Windows/System32/cmd.exe', '/c', 'start', '', url],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                cwd='/mnt/c'  # Run from Windows path to avoid UNC error
+            )
+            log(f"Browser command sent (WSL mode)")
+            return True
+        else:
+            # Use standard browser opening methods
+            import webbrowser
+            webbrowser.open(url)
+            log(f"Opened URL in browser")
+            return True
+    except Exception as e:
+        log(f"Failed to open browser: {e}")
+        return False
+
+
+def monitor_oauth_output(process, provider, oauth_log):
+    """Monitor OAuth process output for URLs and open them in browser"""
+    import re
+    url_pattern = re.compile(r'(https?://[^\s\'"<>\)]+)')
+    
+    # Track if we already opened a browser to avoid duplicates
+    browser_opened = False
+    
+    try:
+        # Read output line by line
+        for line in iter(process.stdout.readline, ''):
+            if not line:
+                break
+            
+            line = line.strip()
+            if not line:
+                continue
+                
+            # Write to log file
+            with open(oauth_log, 'a') as f:
+                f.write(line + '\n')
+            
+            # Skip if we already opened a browser
+            if browser_opened:
+                continue
+            
+            # Check for URL in this line
+            urls = url_pattern.findall(line)
+            
+            # Log for debug
+            if urls:
+                log(f"[{provider}] Found URLs in line: {urls}")
+            
+            for url in urls:
+                # Clean up URL (remove trailing punctuation)
+                url = url.rstrip('.,;:!?')
+                
+                # Skip localhost callback URLs
+                if 'localhost' in url.lower() or '127.0.0.1' in url:
+                    log(f"[{provider}] Skipping localhost URL: {url[:50]}...")
+                    continue
+                
+                # Skip internal/asset URLs
+                if any(skip in url.lower() for skip in ['.js', '.css', '.png', '.jpg', '.ico', 'favicon', 'static']):
+                    continue
+                
+                # Check if line contains keywords suggesting user should visit URL
+                lower_line = line.lower()
+                has_visit_keyword = any(kw in lower_line for kw in ['visit', 'open', 'go to', 'navigate', 'click', 'please', 'authenticate'])
+                
+                # Open authentication URLs for known providers OR if line contains visit keywords
+                auth_domains = [
+                    'google.com', 'accounts.google', 
+                    'github.com', 'github.dev',
+                    'microsoft.com', 'login.microsoft', 'live.com',
+                    'claude.ai', 'anthropic.com', 'console.anthropic',
+                    'aws.amazon.com', 'signin.aws', 
+                    'alibaba', 'aliyun', 'qwen',
+                    'device', 'oauth', 'authorize', 'auth', 'login', 'signin'
+                ]
+                
+                is_auth_url = any(domain in url.lower() for domain in auth_domains)
+                
+                if is_auth_url or has_visit_keyword:
+                    log(f"[{provider}] Opening OAuth URL: {url}")
+                    if open_url_in_browser(url):
+                        browser_opened = True
+                        log(f"[{provider}] Browser opened successfully")
+                    break
+        
+        process.wait()
+        log(f"[{provider}] OAuth process finished")
+    except Exception as e:
+        log(f"OAuth monitor error for {provider}: {e}")
+
+
 def start_oauth_login(provider):
     """Start OAuth login for a provider"""
+    import re
+    url_pattern = re.compile(r'(https?://[^\s\'"<>\)]+)')
+    
+    # NOTE: We don't use fallback URLs because they may not be correct
+    # CLI binary handles browser opening internally for providers that don't print URLs
+    
     flags = {
         'gemini': '--login',
         'copilot': '--github-copilot-login',
@@ -232,45 +350,161 @@ def start_oauth_login(provider):
     flag = flags[provider_lower]
     
     try:
+        # Kill any existing OAuth process for this provider
+        try:
+            result = subprocess.run(['pgrep', '-f', f'cliproxyapi.*{flag}'], 
+                                   capture_output=True, text=True)
+            if result.stdout.strip():
+                subprocess.run(['pkill', '-f', f'cliproxyapi.*{flag}'], 
+                              capture_output=True)
+                time.sleep(0.5)
+        except:
+            pass
+        
         # Ensure log directory exists
         LOG_DIR.mkdir(parents=True, exist_ok=True)
         oauth_log = LOG_DIR / f"oauth-{provider_lower}.log"
         
-        # Start OAuth in a new process with proper environment
-        # Use subprocess with stdout/stderr to files but inherit environment
-        # to allow browser opening
+        # Clear old log
+        oauth_log.write_text(f"OAuth login for {provider} started at {datetime.now().isoformat()}\n")
+        
+        # Set up environment
         env = os.environ.copy()
         
-        # Ensure DISPLAY is set for X11 applications (browser)
-        if 'DISPLAY' not in env:
-            env['DISPLAY'] = ':0'
+        # IMPORTANT: Set BROWSER to no-op to prevent server-side browser opening
+        # The URL will be returned to GUI client which opens it in user's browser
+        # This is essential for tunnel/remote access
+        env['BROWSER'] = '/bin/true'  # No-op - prevents server browser opening
         
-        # For WSL, also try to set BROWSER if not set
-        if 'BROWSER' not in env:
-            # Check for common browsers
-            browsers = ['xdg-open', 'sensible-browser', 'firefox', 'google-chrome', 'chromium-browser']
-            for browser in browsers:
-                try:
-                    result = subprocess.run(['which', browser], capture_output=True, text=True)
-                    if result.returncode == 0:
-                        env['BROWSER'] = result.stdout.strip()
+        # Also unset DISPLAY to prevent any X11 attempts
+        if 'DISPLAY' in env:
+            del env['DISPLAY']
+        
+        # Start OAuth process with output capturing
+        process = subprocess.Popen(
+            [str(BINARY), '--config', str(CONFIG_FILE), flag],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            env=env,
+            cwd=str(CONFIG_DIR),
+            text=True,
+            bufsize=1
+        )
+        
+        log(f"OAuth login started for {provider} (PID: {process.pid})")
+        
+        # Read output synchronously to capture URL and device code
+        import select
+        import re
+        login_url = None
+        device_code = None
+        url_found = False
+        start_time = time.time()
+        timeout = 15  # Wait up to 15 seconds for URL + device code
+        collected_lines = []
+        
+        # Device code pattern (e.g., CE35-9E9B, 4172-5241)
+        code_pattern = re.compile(r'\b([A-Z0-9]{4}-[A-Z0-9]{4})\b')
+        
+        while time.time() - start_time < timeout:
+            # Check if there's data to read (non-blocking)
+            if process.poll() is not None:
+                break
+            
+            # Use select to check if stdout has data
+            if hasattr(select, 'select'):
+                readable, _, _ = select.select([process.stdout], [], [], 0.5)
+                if not readable:
+                    # If we have URL and device code, we're done
+                    if url_found and device_code:
                         break
-                except:
                     continue
+            
+            line = process.stdout.readline()
+            if not line:
+                if url_found and device_code:
+                    break
+                time.sleep(0.1)
+                continue
+            
+            line = line.strip()
+            if not line:
+                continue
+                
+            collected_lines.append(line)
+            
+            # Write to log file
+            with open(oauth_log, 'a') as f:
+                f.write(line + '\n')
+            
+            log(f"[{provider}] Output: {line[:100]}")
+            
+            # Check for device code in this line
+            code_matches = code_pattern.findall(line)
+            if code_matches and not device_code:
+                device_code = code_matches[0]
+                log(f"[{provider}] Found device code: {device_code}")
+            
+            # Check for URL in this line
+            if not url_found:
+                urls = url_pattern.findall(line)
+                for url in urls:
+                    url = url.rstrip('.,;:!?')
+                    
+                    # Skip localhost URLs (callback URLs)
+                    if 'localhost' in url.lower() or '127.0.0.1' in url:
+                        continue
+                    
+                    # Skip asset URLs
+                    if any(skip in url.lower() for skip in ['.js', '.css', '.png', '.ico']):
+                        continue
+                    
+                    # Check if this is an auth URL
+                    lower_line = line.lower()
+                    has_keyword = any(kw in lower_line for kw in ['visit', 'open', 'please', 'authenticate', 'login', 'device'])
+                    auth_domains = ['google.com', 'github.com', 'microsoft.com', 'claude.ai', 'anthropic.com', 'aws.amazon.com', 'device', 'login', 'auth', 'signin']
+                    is_auth = any(d in url.lower() for d in auth_domains)
+                    
+                    if has_keyword or is_auth:
+                        log(f"[{provider}] Found login URL: {url}")
+                        login_url = url
+                        url_found = True
+                        break
+            
+            # If we have both URL and device code, we can return faster
+            if url_found and device_code:
+                # Read one more line in case there's more info
+                time.sleep(0.3)
+                break
         
-        with open(oauth_log, 'w') as log_file:
-            subprocess.Popen(
-                [str(BINARY), '--config', str(CONFIG_FILE), flag],
-                stdout=log_file,
-                stderr=log_file,
-                env=env,
-                cwd=str(CONFIG_DIR),
-                start_new_session=False  # Keep in same session to allow browser access
-            )
+        # Continue monitoring in background thread
+        def background_monitor():
+            try:
+                for line in iter(process.stdout.readline, ''):
+                    if not line:
+                        break
+                    line = line.strip()
+                    if line:
+                        with open(oauth_log, 'a') as f:
+                            f.write(line + '\n')
+                process.wait()
+            except:
+                pass
         
-        log(f"OAuth login started for {provider} (log: {oauth_log})")
-        return {'success': True, 'message': f'OAuth login started for {provider}'}
+        bg_thread = threading.Thread(target=background_monitor, daemon=True)
+        bg_thread.start()
+        
+        # Return URL to client so they can open it in their browser
+        return {
+            'success': True, 
+            'message': f'OAuth login started for {provider}', 
+            'pid': process.pid,
+            'login_url': login_url,
+            'device_code': device_code,
+            'url_found': url_found
+        }
     except Exception as e:
+        log(f"OAuth error for {provider}: {e}")
         return {'success': False, 'error': str(e)}
 
 
