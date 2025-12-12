@@ -232,11 +232,43 @@ def start_oauth_login(provider):
     flag = flags[provider_lower]
     
     try:
-        # Start OAuth in a new process
-        subprocess.Popen(
-            [str(BINARY), '--config', str(CONFIG_FILE), flag],
-            start_new_session=True
-        )
+        # Ensure log directory exists
+        LOG_DIR.mkdir(parents=True, exist_ok=True)
+        oauth_log = LOG_DIR / f"oauth-{provider_lower}.log"
+        
+        # Start OAuth in a new process with proper environment
+        # Use subprocess with stdout/stderr to files but inherit environment
+        # to allow browser opening
+        env = os.environ.copy()
+        
+        # Ensure DISPLAY is set for X11 applications (browser)
+        if 'DISPLAY' not in env:
+            env['DISPLAY'] = ':0'
+        
+        # For WSL, also try to set BROWSER if not set
+        if 'BROWSER' not in env:
+            # Check for common browsers
+            browsers = ['xdg-open', 'sensible-browser', 'firefox', 'google-chrome', 'chromium-browser']
+            for browser in browsers:
+                try:
+                    result = subprocess.run(['which', browser], capture_output=True, text=True)
+                    if result.returncode == 0:
+                        env['BROWSER'] = result.stdout.strip()
+                        break
+                except:
+                    continue
+        
+        with open(oauth_log, 'w') as log_file:
+            subprocess.Popen(
+                [str(BINARY), '--config', str(CONFIG_FILE), flag],
+                stdout=log_file,
+                stderr=log_file,
+                env=env,
+                cwd=str(CONFIG_DIR),
+                start_new_session=False  # Keep in same session to allow browser access
+            )
+        
+        log(f"OAuth login started for {provider} (log: {oauth_log})")
         return {'success': True, 'message': f'OAuth login started for {provider}'}
     except Exception as e:
         return {'success': False, 'error': str(e)}
